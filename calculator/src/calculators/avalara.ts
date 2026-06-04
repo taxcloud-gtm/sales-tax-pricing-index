@@ -48,6 +48,17 @@ const IMPLEMENTATION_FEE_RANGES = {
 // reasonable +/- spread from the aggregator-reported $42-$54)
 const PER_FILING_RANGE_SPREAD = { min: 42, max: 54 };
 
+// Observed Avalara contract values from Vendr buyer data (717 purchases,
+// accessed 2026-05). Used to (1) provide a SOURCED ceiling for buyers past the
+// published order ladder instead of an arbitrary ×N guess, and (2) BOUND the
+// final modeled range so it can never print a figure outside observed reality.
+// Source: https://www.vendr.com/marketplace/avalara
+const OBSERVED_CONTRACT_RANGE = { min: 3_750, max: 75_385, avg: 16_700 };
+
+function clampToObserved(v: number): number {
+  return Math.min(OBSERVED_CONTRACT_RANGE.max, Math.max(OBSERVED_CONTRACT_RANGE.min, v));
+}
+
 // -----------------------------------------------------------------------------
 // YAML-DRIVEN — pick AvaTax tier by annual orders, fall back to revenue segment
 //
@@ -99,9 +110,10 @@ function getAvataxRange(
   const tierMin = tier.annual_price ?? tier.monthly_price * 12;
 
   // Range max is the next numeric tier's annual price. If we're at the top
-  // of the numeric ladder, the buyer is in enterprise/custom territory —
-  // surface 2x current tier as a directional upper bound and rely on the
-  // caveat string to flag the opacity.
+  // of the numeric ladder, the buyer is past Avalara's published tiers, so use
+  // the top of Vendr's OBSERVED contract range as a sourced ceiling rather than
+  // an arbitrary multiple of the current tier. The opacity is flagged in the
+  // caveat string.
   const nextTier = numericTiers[idx + 1];
   let tierMax: number;
   if (nextTier && (nextTier.annual_price ?? null) !== null) {
@@ -109,7 +121,7 @@ function getAvataxRange(
   } else if (nextTier && (nextTier.monthly_price ?? null) !== null && nextTier.monthly_price > 0) {
     tierMax = nextTier.monthly_price * 12;
   } else {
-    tierMax = tierMin * 2;
+    tierMax = OBSERVED_CONTRACT_RANGE.max;
   }
 
   return { min: tierMin, max: tierMax };
@@ -158,33 +170,43 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
   const perRegistrationCost = data.registrations.base_cost.amount ?? 0;
   const registrations = inputs.registrationBacklog * perRegistrationCost;
 
-  // Implementation amortized over 3 years (hardcoded by segment, see TODO)
+  // Implementation, ERP connectors, and per-transaction overages are real
+  // Avalara costs, but they are one-time or variable and not defensibly sourced
+  // as recurring annual figures. They are surfaced as caveats rather than baked
+  // into the headline range (which previously inflated it). The segment
+  // implementation range is kept only for the caveat text.
   const implRange = IMPLEMENTATION_FEE_RANGES[segment];
-  const implMin = implRange.min / 3;
-  const implMax = implRange.max / 3;
 
-  const annualCostMin = roundDollars(baseRange.min + connectorMin + filingsNetMin + registrations + implMin);
-  const annualCostMax = roundDollars(baseRange.max + connectorMax + filingsNetMax + registrations + implMax);
+  // Headline range = AvaTax + Returns core + Returns filings (net of SST credit)
+  // + published registrations, then BOUNDED to Vendr's observed contract
+  // envelope so the model can never print a figure outside observed reality.
+  const rawMin = baseRange.min + filingsNetMin + registrations;
+  const rawMax = baseRange.max + filingsNetMax + registrations;
+  const annualCostMin = roundDollars(clampToObserved(rawMin));
+  const annualCostMax = roundDollars(clampToObserved(rawMax));
 
   const assumptions = [
     `Buyer segment: ${segment} (based on $${inputs.annualRevenueUSD.toLocaleString()} annual revenue)`,
-    `AvaTax core: $${baseRange.min.toLocaleString()}–$${baseRange.max.toLocaleString()}/yr (from YAML order_tiers)`,
+    `AvaTax + Returns core: $${baseRange.min.toLocaleString()}–$${baseRange.max.toLocaleString()}/yr (Avalara's published contract tiers; ceiling bounded by Vendr observed data when the buyer is past the published ladder)`,
     `Returns (per-filing): ${totalFilings} × $${PER_FILING_RANGE_SPREAD.min}–$${PER_FILING_RANGE_SPREAD.max}`,
     sstSavings > 0
       ? `SST CSP savings: ${sstEligible} state${sstEligible === 1 ? '' : 's'} × ${SST_FILINGS_PER_STATE_PER_YEAR} filings × $${perFilingPublished}/filing = −$${sstSavings.toLocaleString()}/yr`
       : '',
     `Registrations: ${inputs.registrationBacklog} × $${perRegistrationCost} (published)`,
-    `Implementation amortized over 3 years: $${roundDollars(implMin).toLocaleString()}–$${roundDollars(implMax).toLocaleString()}/yr`,
+    `Bounded to Vendr observed Avalara contracts: $${OBSERVED_CONTRACT_RANGE.min.toLocaleString()}–$${OBSERVED_CONTRACT_RANGE.max.toLocaleString()}/yr (avg ~$${OBSERVED_CONTRACT_RANGE.avg.toLocaleString()}, 717 purchases)`,
   ].filter(Boolean);
-  if (connectorMin > 0) {
-    assumptions.push(`${inputs.integrationType.toUpperCase()} connector: $${connectorMin.toLocaleString()}–$${connectorMax.toLocaleString()}/yr`);
-  }
 
   const caveats: string[] = [
-    `${data.provider.name} does not publish list pricing for its core platform. Range is based on Vendr buyer data, checkthat.ai analysis, and customer reviews.`,
+    `${data.provider.name} does not publish list pricing for its core platform. This range is bounded to Vendr observed buyer data (avg ~$${OBSERVED_CONTRACT_RANGE.avg.toLocaleString()}/yr across 717 purchases), checkthat.ai analysis, and customer reviews — it is not a published quote.`,
+    `Implementation/onboarding (~$${(implRange.min / 1000).toLocaleString()}K–$${(implRange.max / 1000).toLocaleString()}K, typically one-time), ERP connector fees, and per-transaction overages are additional and not included in this range.`,
     'Multi-year and multi-product commitments yield material discounts but are not modeled.',
     'Per-transaction overage rates apply when volume exceeds contracted tier; overage rates are not publicly disclosed.',
   ];
+  if (connectorMin > 0) {
+    caveats.push(
+      `${inputs.integrationType.toUpperCase()} connector adds roughly $${connectorMin.toLocaleString()}–$${connectorMax.toLocaleString()}/yr and is not included above.`,
+    );
+  }
   if (segment === 'enterprise') {
     caveats.push('Enterprise contracts are fully custom — actual price may exceed the high end of this range.');
   }
@@ -197,13 +219,10 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
     caveats.push(data.calculator.output_caveat);
   }
 
-  // Midpoint breakdown — useful for the "show full breakdown" view since the
-  // estimate itself is a range. Each line is the mid of its own range so the
-  // breakdown sums to the midpoint of the total range (within rounding).
-  // (filingsMid is already computed above for the SST cap.)
+  // Midpoint breakdown for the "show full breakdown" view. Implementation and
+  // connector fees are excluded from the headline (see caveats), so they are 0
+  // here. (filingsMid is already computed above for the SST cap.)
   const subscriptionMid = (baseRange.min + baseRange.max) / 2;
-  const connectorMid = (connectorMin + connectorMax) / 2;
-  const implMid = (implMin + implMax) / 2;
 
   return {
     provider: data.provider.name,
@@ -220,8 +239,8 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
       filings: roundDollars(filingsMid),
       registrations,
       transactions: 0,
-      addOns: roundDollars(connectorMid),
-      implementation: roundDollars(implMid),
+      addOns: 0,
+      implementation: 0,
       ...(sstSavings > 0 ? { sstSavings } : {}),
     },
     assumptions,

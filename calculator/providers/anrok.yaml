@@ -19,7 +19,7 @@ provider:
   primary_url: "https://www.anrok.com"
   pricing_url: "https://www.anrok.com/pricing"
   help_center_url: null
-  target_icp: "SaaS companies of all sizes; especially strong fit for sub-$50M ARR digital businesses with global expansion plans"
+  target_icp: "SaaS companies of all sizes; Anrok publishes no overall ARR ceiling. Strongest fit is sub-$50M ARR digital businesses with global expansion plans (heuristic; Anrok's only published ARR guidance is the <$2M Starter tier, which is a tier best-fit, not an overall ICP cap)"
   primary_verticals:
     - saas
   competitive_position: "SaaS-focused sales tax platform built for software businesses. Differentiates on SaaS-specific taxability handling, payroll/HR integration for physical nexus tracking, and global VAT coverage. Hybrid pricing (subscription + bps) is unusual in the category but predictable for SaaS finance teams accustomed to consumption-based vendor models."
