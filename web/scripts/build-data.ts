@@ -18,9 +18,34 @@ import { loadProviders } from '../../calculator/src/data/loader';
 const OUT_DIR = path.join(__dirname, '..', 'lib', 'data');
 const OUT_FILE = path.join(OUT_DIR, 'providers.json');
 
+/**
+ * Internal-only fields that must never ship in the public providers.json
+ * payload. These hold competitive intelligence, GTM framing, and open
+ * research questions meant for internal review, not the public site.
+ *
+ * - top-level `notes`: "Competitive intelligence for /vs/… landing page" and
+ *   "Open research questions" blocks (includes TaxCloud counter-messaging).
+ * - `provider.competitive_position`: internal GTM positioning.
+ *
+ * Factual section notes (filings.notes, registrations.notes, etc.) are NOT
+ * stripped — those are sourced and rendered on the site.
+ */
+function stripInternal(provider: Record<string, unknown>): Record<string, unknown> {
+  const clone: Record<string, unknown> = { ...provider };
+  delete clone.notes;
+  if (clone.provider && typeof clone.provider === 'object') {
+    const meta = { ...(clone.provider as Record<string, unknown>) };
+    delete meta.competitive_position;
+    clone.provider = meta;
+  }
+  return clone;
+}
+
 function main(): void {
   const map = loadProviders();
-  const obj = Object.fromEntries(map);
+  const obj = Object.fromEntries(
+    Array.from(map, ([slug, data]) => [slug, stripInternal(data as unknown as Record<string, unknown>)]),
+  );
   const slugs = Array.from(map.keys()).sort();
 
   const payload = {

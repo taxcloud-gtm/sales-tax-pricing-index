@@ -101,7 +101,9 @@ export function productJsonLd(p: ProviderData) {
     '@context': 'https://schema.org',
     '@type': 'Product',
     name: p.provider.name,
-    description: p.provider.competitive_position ?? p.provider.target_icp ?? undefined,
+    // Use the public target-ICP description only. `competitive_position` is
+    // internal GTM framing and must never ship in public schema/payload.
+    description: p.provider.target_icp ?? undefined,
     brand: {
       '@type': 'Brand',
       name: p.provider.name,
