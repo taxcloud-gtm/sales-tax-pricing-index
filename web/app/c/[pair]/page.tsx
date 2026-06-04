@@ -13,6 +13,7 @@ import { PairSummary } from '@/components/comparison/pair-summary';
 import { PairTable } from '@/components/comparison/pair-table';
 import { ExampleScenarios } from '@/components/comparison/example-scenarios';
 import { PairFaq } from '@/components/comparison/pair-faq';
+import { PairSources } from '@/components/comparison/pair-sources';
 
 export function generateStaticParams() {
   return allPairs().map(([a, b]) => ({ pair: `${a}-vs-${b}` }));
@@ -78,6 +79,7 @@ export default async function PairPage({ params }: { params: Promise<{ pair: str
       </section>
 
       <PairFaq a={a} b={b} />
+      <PairSources a={a} b={b} />
 
       <section className="my-12 rule-top pt-8 text-sm text-ink-muted max-w-prose">
         <p>

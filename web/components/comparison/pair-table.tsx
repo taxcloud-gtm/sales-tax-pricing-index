@@ -1,6 +1,24 @@
 import type { ProviderData } from '../../../calculator/src/data/types';
 import { money, entryAnnualPrice } from '@/lib/format';
 
+type Cite = { source?: string; confidence?: string } | null;
+
+/** Inline source + confidence badge, mirroring the provider pricing table. */
+function CiteLink({ cite }: { cite: Cite }) {
+  if (!cite?.source || !cite.confidence) return null;
+  return (
+    <a
+      href={cite.source}
+      target="_blank"
+      rel="noopener noreferrer"
+      className="text-xs no-underline text-ink-subtle hover:text-accent ml-1.5 whitespace-nowrap"
+      title={`Source: ${cite.source}`}
+    >
+      [{cite.confidence}] ↗
+    </a>
+  );
+}
+
 function cheapestPaid(p: ProviderData) {
   return p.plans
     .filter((pl) => !pl.is_free)
@@ -52,10 +70,37 @@ function yesNo(v: boolean | undefined | null): string {
   return v ? 'Yes' : 'No';
 }
 
-const ROWS: Array<{ label: string; render: (p: ProviderData) => React.ReactNode }> = [
-  { label: 'Entry-tier subscription', render: (p) => startingPriceCell(p) },
-  { label: 'Per-state filing fee', render: (p) => perFilingCell(p) },
-  { label: 'Per-state registration fee', render: (p) => perRegistrationCell(p) },
+interface Row {
+  label: string;
+  render: (p: ProviderData) => React.ReactNode;
+  cite?: (p: ProviderData) => Cite;
+}
+
+const ROWS: Row[] = [
+  {
+    label: 'Entry-tier subscription',
+    render: (p) => startingPriceCell(p),
+    cite: (p) => {
+      const c = cheapestPaid(p);
+      return c ? { source: c.monthly_price.source, confidence: c.monthly_price.confidence } : null;
+    },
+  },
+  {
+    label: 'Per-state filing fee',
+    render: (p) => perFilingCell(p),
+    cite: (p) =>
+      p.filings?.has_per_filing_fee && p.filings.base_cost
+        ? { source: p.filings.base_cost.source, confidence: p.filings.base_cost.confidence }
+        : null,
+  },
+  {
+    label: 'Per-state registration fee',
+    render: (p) => perRegistrationCell(p),
+    cite: (p) =>
+      p.registrations?.has_per_registration_fee && p.registrations.base_cost
+        ? { source: p.registrations.base_cost.source, confidence: p.registrations.base_cost.confidence }
+        : null,
+  },
   { label: 'Per-transaction fee', render: (p) => transactionFeeCell(p) },
   { label: 'Pricing transparency', render: (p) => tierLabel(p.transparency.tier) },
   { label: 'SST Certified Service Provider', render: (p) => yesNo(p.sst?.is_csp) },
@@ -79,13 +124,26 @@ export function PairTable({ a, b }: { a: ProviderData; b: ProviderData }) {
             {ROWS.map((row, i) => (
               <tr key={i} className="rule-bottom align-top">
                 <td className="py-4 pr-4 small-caps text-xs text-ink-subtle">{row.label}</td>
-                <td className="py-4 px-4 text-ink">{row.render(a)}</td>
-                <td className="py-4 px-4 text-ink">{row.render(b)}</td>
+                <td className="py-4 px-4 text-ink">
+                  {row.render(a)}
+                  {row.cite && <CiteLink cite={row.cite(a)} />}
+                </td>
+                <td className="py-4 px-4 text-ink">
+                  {row.render(b)}
+                  {row.cite && <CiteLink cite={row.cite(b)} />}
+                </td>
               </tr>
             ))}
           </tbody>
         </table>
       </div>
+      <p className="text-xs text-ink-subtle mt-3">
+        Source confidence:{' '}
+        <a href="/methodology" className="no-underline hover:text-accent">
+          A = vendor pricing page, B = help center, C = third-party aggregator, G = estimated
+        </a>
+        . Per-transaction, transparency, and SST rows are structural, not dollar figures.
+      </p>
     </section>
   );
 }
