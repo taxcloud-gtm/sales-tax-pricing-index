@@ -8,7 +8,7 @@ The Sales Tax Pricing Index is operated by TaxCloud, Inc. (taxcloud.com), one of
 
 ## Editorial methodology
 
-- Every dollar figure traces to a public, dated source. Confidence ratings (A/B/C/D/E) are attached to each price point.
+- Every dollar figure traces to a public, dated source. Confidence ratings (A–G: A = vendor pricing page, B = help center/docs, C = third-party aggregator, D = blog/PR, E = public forum, F = internal/customer-shared, G = estimated with disclosed methodology) are attached to each price point.
 - Opaque vendors (Avalara, Zamp) are shown as ranges from aggregator buyer data, not point estimates. "Quote required" stays "quote required."
 - The calculator runs the same pricing math used to populate per-provider pages, with no separate logic.
 - TaxCloud's pricing is sourced first-party (we publish full plan, order-tier, and filings-tier ladders); other providers are sourced from their own public materials wherever possible.
