@@ -13,3 +13,4 @@ export function providerPageJsonLd(p: ProviderData) {
 }
 
 export { productJsonLd, faqJsonLd, tableJsonLd };
+export { datasetJsonLd } from './dataset';

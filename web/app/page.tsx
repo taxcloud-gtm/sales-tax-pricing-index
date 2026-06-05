@@ -3,6 +3,7 @@ import { getAllProviders } from '@/lib/data/providers';
 import { providerPath, pairPath } from '@/lib/slugs';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
+import { datasetJsonLd } from '@/lib/jsonld/dataset';
 
 const FEATURED_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ['avalara', 'taxjar'],
@@ -17,9 +18,15 @@ const FEATURED_PAIRS: ReadonlyArray<readonly [string, string]> = [
 export default function HomePage() {
   const providers = getAllProviders();
   const date = lastUpdatedAcross(providers);
+  const dataset = datasetJsonLd(providers);
 
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(dataset) }}
+      />
+
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-16">
         <div className="max-w-3xl">
