@@ -43,6 +43,59 @@ function includedCell(plan: ProviderData['plans'][number]): React.ReactNode {
   return parts.join(' · ');
 }
 
+/**
+ * Order-tier ladder for plans that have one (e.g. TaxCloud, TaxJar).
+ * Renders the full price-by-volume table so annual totals are reproducible
+ * from the page without needing to open the calculator.
+ */
+function OrderTierLadder({ plan }: { plan: ProviderData['plans'][number] }) {
+  const tiers = plan.order_tiers;
+  if (!tiers || tiers.length <= 1) return null;
+
+  return (
+    <details className="mt-4 text-xs">
+      <summary className="cursor-pointer text-ink-subtle hover:text-accent select-none">
+        Full order-volume pricing ({tiers.length} tiers) ▸
+      </summary>
+      <div className="overflow-x-auto mt-3">
+        <table className="text-xs border-collapse w-full max-w-lg">
+          <thead>
+            <tr className="rule-bottom">
+              <th className="text-left py-2 pr-4 small-caps text-ink-subtle">Orders / mo</th>
+              <th className="text-left py-2 px-3 small-caps text-ink-subtle">Monthly</th>
+              <th className="text-left py-2 px-3 small-caps text-ink-subtle">Annual</th>
+            </tr>
+          </thead>
+          <tbody>
+            {tiers.map((tier, i) => (
+              <tr key={i} className="rule-bottom">
+                <td className="py-2 pr-4 text-ink-muted font-mono">
+                  {tier.included_orders != null
+                    ? `≤ ${tier.included_orders.toLocaleString()}`
+                    : 'Custom'}
+                </td>
+                <td className="py-2 px-3 text-ink font-mono">
+                  {tier.monthly_price > 0 ? money(tier.monthly_price) : '—'}
+                </td>
+                <td className="py-2 px-3 text-ink font-mono">
+                  {tier.annual_price != null
+                    ? money(tier.annual_price)
+                    : tier.monthly_price > 0
+                      ? money(tier.monthly_price * 12)
+                      : '—'}
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <p className="mt-2 text-ink-subtle">
+        Annual rate is subscription only — filings, registrations, and add-ons calculated separately.
+      </p>
+    </details>
+  );
+}
+
 export function PricingTable({ provider }: { provider: ProviderData }) {
   return (
     <section className="my-12">
@@ -63,6 +116,7 @@ export function PricingTable({ provider }: { provider: ProviderData }) {
                 <td className="py-4 pr-4">
                   <p className="font-serif font-semibold text-ink">{plan.name}</p>
                   {plan.tagline && <p className="text-ink-subtle text-xs mt-1 max-w-xs">{plan.tagline}</p>}
+                  <OrderTierLadder plan={plan} />
                 </td>
                 <td className="py-4 px-4 text-ink whitespace-nowrap">{priceCell(plan)}</td>
                 <td className="py-4 px-4 text-ink-muted">{includedCell(plan)}</td>

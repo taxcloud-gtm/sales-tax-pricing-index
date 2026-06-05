@@ -2,6 +2,7 @@ import type { Metadata } from 'next';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { getAllProviders } from '@/lib/data/providers';
+import { methodologyJsonLd } from '@/lib/jsonld/methodology';
 
 export const metadata: Metadata = {
   title: 'Methodology',
@@ -11,9 +12,14 @@ export const metadata: Metadata = {
 
 export default function MethodologyPage() {
   const date = lastUpdatedAcross(getAllProviders());
+  const jsonLd = methodologyJsonLd();
 
   return (
     <article className="mx-auto max-w-prose px-6 py-16">
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <div className="space-y-3">
         <p className="small-caps text-xs text-ink-subtle">Trust</p>
         <h1 className="text-hed">Methodology</h1>
