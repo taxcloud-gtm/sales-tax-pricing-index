@@ -73,7 +73,27 @@ export function calculateTaxjar(inputs: UserInputs, data?: ProviderData): Provid
 
   const totalFilings = totalFilingsPerYear(inputs);
   const billableFilings = Math.max(0, totalFilings - includedFilings);
-  const filings = billableFilings * perFilingCost;
+  const payAsYouGoFilings = billableFilings * perFilingCost;
+
+  // Filing bundles. TaxJar sells blocks of AutoFile credits to ANNUAL
+  // subscribers at a real discount to the per-filing rate (Starter's 25 and 100
+  // bundles both work out to $45/filing against $50 pay-as-you-go). A buyer
+  // choosing rationally takes whichever is cheaper, so model that rather than
+  // always charging PAYG, which overstated TaxJar at high filing counts.
+  const bundles = data.filings.bundle_pricing?.[plan.slug] ?? [];
+  let chosenBundle: (typeof bundles)[number] | null = null;
+  if (inputs.billingCadence === 'annual' && bundles.length > 0 && billableFilings > 0) {
+    const affordable = bundles.filter(
+      (bnd) => bnd.filings === null || billableFilings <= bnd.filings,
+    );
+    // Cheapest bundle that actually covers the buyer's filing count.
+    const best = affordable.reduce<(typeof bundles)[number] | null>(
+      (acc, bnd) => (acc === null || bnd.annual_price < acc.annual_price ? bnd : acc),
+      null,
+    );
+    if (best && best.annual_price < payAsYouGoFilings) chosenBundle = best;
+  }
+  const filings = chosenBundle ? chosenBundle.annual_price : payAsYouGoFilings;
 
   const registrations = inputs.registrationBacklog * perRegistrationCost;
 
@@ -83,7 +103,9 @@ export function calculateTaxjar(inputs: UserInputs, data?: ProviderData): Provid
     `Plan: ${plan.name}`,
     `Order tier: up to ${orderTier.included_orders} orders/mo at $${orderTier.monthly_price}/mo`,
     `Annual billing: ${inputs.billingCadence === 'annual' ? `${annualDiscountPct}% discount applied` : 'No annual discount'}`,
-    `${billableFilings} billable filings/year at $${perFilingCost} after ${includedFilings} included credits`,
+    chosenBundle
+      ? `${billableFilings} billable filings/year covered by the ${chosenBundle.filings === null ? 'Unlimited' : chosenBundle.filings} filing bundle at $${chosenBundle.annual_price.toLocaleString()}/yr (cheaper than ${billableFilings} × $${perFilingCost} = $${payAsYouGoFilings.toLocaleString()} pay-as-you-go)`
+      : `${billableFilings} billable filings/year at $${perFilingCost} after ${includedFilings} included credits`,
     `Registrations: ${inputs.registrationBacklog} × $${perRegistrationCost}`,
   ];
 

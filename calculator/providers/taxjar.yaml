@@ -356,52 +356,12 @@ plans:
     per_filing_cost_override: 55
     per_registration_cost_override: 299
 
-  - name: "Premium"
-    slug: "premium"
-    tagline: "Custom enterprise pricing"
-    target_customer: "Enterprise / high-volume merchants"
-    is_free: false
-    is_quote_only: true
-    
-    monthly_price:
-      amount: null
-      type: exact
-      range_min: null
-      range_max: null
-      source: "https://www.taxjar.com/pricing"
-      source_date: 2026-05-11
-      confidence: A
-    
-    annual_price:
-      amount: null
-      discount_pct_vs_monthly: null
-      source: "https://www.taxjar.com/pricing"
-      source_date: 2026-05-11
-      confidence: A
-    
-    order_tiers: []
-    overage:
-      model: none
-      per_unit_cost: null
-      description: "Custom; negotiated"
-    
-    included_filings_per_period:
-      count: null
-      period: none
-    included_integrations: null
-    included_states: null
-    api_access_included: true
-    
-    features:
-      nexus_monitoring: true
-      exemption_certificate_mgmt: true
-      multi_state_filing: true
-      audit_support: true       # Assumed; verify
-      phone_support: true
-      dedicated_csm: true
-      sst_program_access: false
-      vda_support: false
-      international_vat_gst: false
+  # NOTE 2026-08-18: a third "Premium" plan was recorded here as quote-only.
+  # It could not be found on any current TaxJar page. taxjar.com/pricing renders
+  # exactly two plans (Starter and Professional), and the help-center pricing
+  # article, updated 2026-06-12, describes two plans and publishes the full
+  # order ladder for both through 10M orders/month with no reference to a third
+  # tier or a quote-only option. Removed rather than left in place unsourced.
 
 filings:
   has_per_filing_fee: true
@@ -412,9 +372,52 @@ filings:
   
   state_upcharges: []           # TaxJar does not appear to publish state-specific upcharges
   
-  volume_discounts: []          # No published volume discount on AutoFile credits
-  
-  notes: "Starter AutoFile fee is $50/return; Professional AutoFile fee is $55/return. Both plans include limited free filings annually (2/yr Starter, 4/yr Professional). Filings above included credits charged at the per-return rate. AutoFile fees roughly doubled in Feb 2026 from prior $30-35 range."
+  volume_discounts: []          # Bundles are modeled in bundle_pricing below, not as a rate discount
+
+  # Filing bundles for ANNUAL subscribers, published in the help-center pricing
+  # article (updated 2026-06-12) and captured 2026-08-18. Our previous note said
+  # these were "published but not yet modeled"; they are now modeled.
+  # These are annual prices for a block of AutoFile credits, available only on
+  # annual plans. Effective per-filing rates undercut pay-as-you-go materially:
+  # Starter's 25 and 100 bundles both work out to $45/filing against a $50 PAYG
+  # rate, and Unlimited breaks even against Starter PAYG at 200 filings/year.
+  bundle_pricing:
+    starter:
+      - filings: 25
+        annual_price: 1125
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: 50
+        annual_price: 2225
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: 100
+        annual_price: 4500
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: null            # Unlimited
+        annual_price: 10000
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+    professional:
+      - filings: 25
+        annual_price: 1250
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: 50
+        annual_price: 2500
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: 100
+        annual_price: 5000
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+      - filings: null            # Unlimited
+        annual_price: 12000
+        source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
+        confidence: B
+
+  notes: "Starter AutoFile fee is $50/return; Professional AutoFile fee is $55/return. Both plans include limited free filings annually (2/yr Starter, 4/yr Professional). Filings above included credits are charged at the per-return rate, unless the customer is on an annual plan and buys a filing bundle (see bundle_pricing). AutoFile fees roughly doubled in Feb 2026 from a prior $30-35 range."
 
 registrations:
   has_per_registration_fee: true
@@ -537,6 +540,10 @@ sources:
       - flex_fees
 
 change_log:
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "Re-verified against the pricing page and the help-center article (updated 2026-06-12). No price changed: all 34 order-tier values across both ladders match, AutoFile stays at $50 Starter and $55 Professional, registration stays at $299, and the included 2/yr and 4/yr credits are unchanged. So there has been no second increase since February 2026. Two data corrections. A third 'Premium' plan recorded here as quote-only was removed; it appears on no current TaxJar page, and both the pricing page and the help-center article describe exactly two plans while publishing the full ladder for each through 10M orders/month. And the annual-subscriber filing bundles, previously noted as published but not modeled, are now captured and used: Starter 25/50/100/unlimited at $1,125/$2,225/$4,500/$10,000 and Professional at $1,250/$2,500/$5,000/$12,000. The calculator now takes the cheaper of pay-as-you-go or the best-fit bundle on annual billing, which lowers TaxJar's modeled cost at high filing counts where we were previously overstating it. Separately, no evidence was found that TaxJar is being sunset for Stripe Tax; TaxJar's own May 2026 post positions it as the US filing partner built into Stripe Tax and describes continued investment."
+    source: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
   - date: 2026-05-14
     change_type: structure_change
     description: "Extended order-tier ladder from 8 tiers (capping at 50K orders/mo) to 17 tiers (capping at 10M orders/mo) on both Starter and Professional, sourced from the TaxJar help center pricing article (updated 2026-05-07). Previously, any customer above 50K monthly orders was being pinned to the 50K tier, a material understatement at upper mid-market and enterprise volumes. The new tiers are 75K, 100K, 250K, 500K, 1M, 2.5M, 5M, 7.5M, 10M. Filing bundle pricing for annual subscribers (e.g., 25/50/100/unlimited filings flat-rate) is published but not yet modeled, calculator continues to use per-filing × volume."

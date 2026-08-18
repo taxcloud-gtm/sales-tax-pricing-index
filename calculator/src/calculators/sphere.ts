@@ -18,6 +18,11 @@ import { roundDollars } from '../helpers';
 
 const SPHERE_HIGH_VOLUME_THRESHOLD_PER_YEAR = 50_000 * 12;  // 50K/month threshold
 
+// Sphere publishes the $100/region rate only for Starter, which it caps at
+// "< 10 regions". At 10+ the buyer is on the quote-only Growth tier.
+// Verified 2026-08-18 against the pricing page.
+const SPHERE_STARTER_MAX_REGIONS = 10;
+
 export function calculateSphere(inputs: UserInputs, data?: ProviderData): ProviderEstimate {
   if (!data) {
     throw new Error('calculateSphere requires ProviderData loaded from providers/sphere.yaml');
@@ -32,13 +37,16 @@ export function calculateSphere(inputs: UserInputs, data?: ProviderData): Provid
 
   const annualTransactions = inputs.monthlyOrders * 12;
   const exceedsHighVolume = annualTransactions > SPHERE_HIGH_VOLUME_THRESHOLD_PER_YEAR;
+  const exceedsStarterRegions = regions >= SPHERE_STARTER_MAX_REGIONS;
 
   return {
     provider: data.provider.name,
     slug: data.provider.slug,
     transparencyTier: data.transparency.tier,
     recommendedPlan: plan.name,
-    estimate: { type: 'exact', annualCostUSD: roundDollars(annualCost) },
+    estimate: exceedsStarterRegions
+      ? { type: 'starting_at', annualCostUSD: roundDollars(annualCost) }
+      : { type: 'exact', annualCostUSD: roundDollars(annualCost) },
     breakdown: {
       subscription: roundDollars(annualCost),
       filings: 0,
@@ -53,6 +61,9 @@ export function calculateSphere(inputs: UserInputs, data?: ProviderData): Provid
       'All filings and registrations included in flat fee',
     ],
     caveats: [
+      exceedsStarterRegions
+        ? `At ${regions} regions you are past Sphere's published Starter tier, which covers fewer than ${SPHERE_STARTER_MAX_REGIONS} regions. Sphere routes 10+ regions to a quote-only Growth tier with no published price, so this figure is the Starter rate extended as a floor, not a quote.`
+        : '',
       exceedsHighVolume
         ? `At ${annualTransactions.toLocaleString()} annual transactions, you exceed Sphere's 50,000/month threshold. Additional per-transaction fees apply above this volume; not modeled here.`
         : 'No per-transaction fees below 50,000 transactions/month across active regions.',

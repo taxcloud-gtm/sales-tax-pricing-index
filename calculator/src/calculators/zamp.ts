@@ -66,7 +66,10 @@ export function calculateZamp(inputs: UserInputs, data?: ProviderData): Provider
   const assumptions = [
     `Plan: ${plan.name} (quote-only; range estimated from aggregator buyer data)`,
     `Buyer segment: ${segment} (revenue $${inputs.annualRevenueUSD.toLocaleString()}, ${inputs.statesFiling} states)`,
-    `Bundle includes filings, registrations, notice handling, and ${plan.slug === 'global' ? 'international VAT/GST' : 'US sales tax'}, with no per-event surcharges.`,
+    // NOTE: the 'global' slug is legacy. Zamp renamed this tier "U.S. + Canada"
+    // (verified 2026-08-18) and sells no globally-scoped plan on its pricing
+    // page. Slug kept for data continuity; the copy follows the current name.
+    `Bundle includes filings, registrations, notice handling, and ${plan.slug === 'global' ? 'Canadian coverage alongside US sales tax' : 'US sales tax'}, with no per-event surcharges.`,
   ];
 
   const caveats: string[] = [

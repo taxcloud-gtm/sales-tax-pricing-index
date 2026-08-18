@@ -25,8 +25,8 @@ provider:
   competitive_position: "AI-native cross-border compliance platform with proprietary Tax Review and Assessment Model (TRAM). Direct integrations into 100+ tax authorities. Y Combinator-backed. Differentiates on flat per-region transparency vs. percent-of-revenue and quote-based competitors."
 
 transparency:
-  tier: transparent
-  rationale: "Single flat rate ($100/region/month) published on pricing page. High-volume threshold (50,000 transactions) and overage handling also published. No quote-only tiers for standard customers."
+  tier: partial
+  rationale: "Downgraded from transparent 2026-08-18. The headline $100/region/month rate is still published, along with the 50,000-transaction threshold, but Sphere now caps that Starter tier at under 10 regions and routes anything larger to a quote-only Growth tier. The overage rate above 50,000 transactions has never been published, and no annual pricing is published at all. Sphere is still the most transparent vendor in the set at the low end; it just no longer publishes a price for every customer it serves."
   pricing_page_has_dollar_amounts: true
   quote_required_for_core_product: false
   publishes_filing_fees: true
@@ -52,14 +52,17 @@ plans:
       amount: 100
       type: exact
       source: "https://www.getsphere.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     annual_price:
-      amount: 1200
+      # Sphere publishes no annual rate. The $1,200 previously recorded here was
+      # our own 12x derivation presented as confidence A, which is exactly the
+      # kind of invented number this site exists to avoid. Nulled 2026-08-18.
+      amount: null
       type: exact
-      discount_pct_vs_monthly: 0
+      discount_pct_vs_monthly: null
       source: "https://www.getsphere.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     order_tiers: []
     overage:
@@ -84,6 +87,48 @@ plans:
       international_vat_gst: true
     per_filing_cost_override: 0  # Included in flat region fee
     per_registration_cost_override: 0  # Included in flat region fee
+    max_regions: 10  # Starter is published as "< 10 regions"; 10+ routes to Growth
+
+  # Added 2026-08-18. Sphere introduced a second tier; the single-plan structure
+  # previously recorded here no longer matches the pricing page.
+  - name: "Growth"
+    slug: "growth"
+    tagline: "Quote-only tier for customers operating in 10 or more regions"
+    target_customer: "Companies filing in 10+ regions. Adds a dedicated account manager, tax team on demand, and 24/7 Slack support. Sphere publishes no price for this tier."
+    is_free: false
+    is_quote_only: true
+    monthly_price:
+      amount: null
+      type: exact
+      source: "https://www.getsphere.com/pricing"
+      source_date: 2026-08-18
+      confidence: A
+    annual_price:
+      amount: null
+      discount_pct_vs_monthly: null
+      source: "https://www.getsphere.com/pricing"
+      source_date: 2026-08-18
+      confidence: A
+    order_tiers: []
+    overage:
+      model: none
+      description: "Custom, negotiated."
+    included_filings_per_period:
+      count: null
+      period: monthly
+    included_integrations: null
+    included_states: null
+    api_access_included: true
+    features:
+      nexus_monitoring: true
+      exemption_certificate_mgmt: true
+      multi_state_filing: true
+      audit_support: true
+      phone_support: true
+      dedicated_csm: true
+      sst_program_access: false
+      vda_support: true
+      international_vat_gst: true
 
 filings:
   has_per_filing_fee: false
@@ -93,7 +138,7 @@ filings:
     confidence: A
   state_upcharges: []
   volume_discounts: []
-  notes: "Filings are included in the flat $100/region/month fee. No per-filing surcharges."
+  notes: "Filings are included in the flat $100/region/month fee on Starter. No per-filing surcharges. Growth tier terms are not published."
 
 registrations:
   has_per_registration_fee: false
@@ -178,13 +223,21 @@ commitments:
 sources:
   - url: "https://www.getsphere.com/pricing"
     title: "Sphere Pricing"
-    accessed_date: 2026-05-11
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans
       - monthly_price
+      - starter_region_cap
+      - growth_tier
       - transaction_threshold
       - international_coverage
+  - url: "https://www.getsphere.com/blog/sphere-raises-21m-series-a"
+    title: "Sphere raises $21M Series A led by a16z"
+    accessed_date: 2026-08-18
+    confidence: D
+    fields_supported:
+      - company_context
   - url: "https://www.getsphere.com/blog/leading-sales-tax-compliance-software-in-the-us"
     title: "Top 8 Leading Sales Tax Compliance Software in the US (2026)"
     accessed_date: 2026-05-11
@@ -192,7 +245,11 @@ sources:
     fields_supported:
       - competitive_context
 
-change_log: []
+change_log:
+  - date: 2026-08-18
+    change_type: new_plan
+    description: "Sphere added a second tier. The Starter plan is now published as covering fewer than 10 regions, and customers at 10 or more regions are routed to a new quote-only Growth tier that adds a dedicated account manager, tax team on demand, and 24/7 Slack support. The $100 per region per month headline rate is unchanged. Two corrections followed: transparency moved from transparent to partial, since Sphere no longer publishes a price for every customer it serves, and the $1,200 annual price recorded here was removed because Sphere publishes no annual rate. That figure was our own 12x derivation carrying a confidence-A rating, which overstated its sourcing. Company context also added: $21M Series A led by a16z, announced 2025-11-18, which predates our previous verification but was not captured."
+    source: "https://www.getsphere.com/pricing"
 
 calculator:
   applicable_inputs:
@@ -202,10 +259,14 @@ calculator:
     - monthly_orders
   cost_formula_notes: |
     1. Compute regions = states_filing + (international_countries ?? 0)
-    2. Compute annual_cost = regions × $100/month × 12 months
-    3. If annual_transactions > 50,000: add per-transaction fees (rate not disclosed)
-    4. Filing and registration costs are $0 (included in region fee)
-  output_caveat: "Above 50,000 transactions across active regions, per-transaction fees apply at undisclosed rates. State-level permit fees may pass through."
+    2. If regions >= 10, the buyer is on Sphere's quote-only Growth tier and no
+       published price exists. The calculator still shows the Starter rate as a
+       floor, flagged in the caveats, rather than dropping Sphere from the
+       comparison entirely.
+    3. Otherwise annual_cost = regions × $100/month × 12 months
+    4. If annual_transactions > 50,000: add per-transaction fees (rate not disclosed)
+    5. Filing and registration costs are $0 (included in region fee)
+  output_caveat: "Sphere publishes the $100/region/month rate only for its Starter tier, which covers fewer than 10 regions. At 10 or more regions Sphere routes buyers to a quote-only Growth tier with no published price, so estimates at that size are a floor rather than a quote. Above 50,000 transactions across active regions, per-transaction fees apply at undisclosed rates. State-level permit fees may pass through."
 
 notes: |
   Sphere is the simplest pricing model in the entire competitive set, one rate,
@@ -218,8 +279,11 @@ notes: |
     for the same customer profile.
   - Sphere is SaaS-focused with API-first integrations. Ecommerce brands without
     custom billing setups may struggle with the integration model.
-  - No SST CSP status, no audit support, no VDA service. These are real gaps for
-    multi-state ecommerce customers.
+  - No SST CSP status. Audit support and VDA service appear only on the
+    quote-only Growth tier, so they are unavailable at any published price.
+  - The 2026 tier split matters for positioning: Sphere's flat rate was its
+    whole story, and it now stops exactly where multi-state ecommerce buyers
+    start. A 20-state brand cannot buy Sphere at a published price at all.
   
   Open research items:
   - 50,000-transaction overage rate
