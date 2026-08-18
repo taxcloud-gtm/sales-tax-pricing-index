@@ -51,7 +51,7 @@ export function typicalMidMarketSentence(p: ProviderData): string | null {
     return (
       `For a typical mid-market ecommerce brand (${midMarket.annualOrders.toLocaleString()} orders/year, ` +
       `${midMarket.statesFiling} states with ${midMarket.sstEligibleStates} SST, on Shopify), ` +
-      `${p.provider.name} runs about ${renderEstimate(result.estimate)} per year on the ${result.recommendedPlan} plan.`
+      `${p.provider.name} ${result.estimate.type === 'starting_at' ? `starts at ${money(result.estimate.annualCostUSD)}` : `runs about ${renderEstimate(result.estimate)}`} per year on the ${result.recommendedPlan} plan.`
     );
   } catch {
     return null;

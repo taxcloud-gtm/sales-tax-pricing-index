@@ -30,14 +30,15 @@ export function pairFaqEntries(a: ProviderData, b: ProviderData): PairFaqEntry[]
     if (a.sst.is_csp && b.sst.is_csp) {
       entries.push({
         q: `Are both ${aName} and ${bName} SST certified?`,
-        a: `Yes. Both are Certified Service Providers in the Streamlined Sales Tax (SST) Program, which means free filings in up to 24 SST member states for customers who qualify.`,
+        a: `Yes. Both are Certified Service Providers in the Streamlined Sales Tax (SST) Program, which means free filings in SST member states for customers who qualify.${a.sst.sst_member_states_covered_free ? ` ${aName} publishes free filing in all ${a.sst.sst_member_states_covered_free} member states.` : ''}${b.sst.sst_member_states_covered_free ? ` ${bName} publishes free filing in all ${b.sst.sst_member_states_covered_free} member states.` : ''}`,
       });
     } else if (a.sst.is_csp || b.sst.is_csp) {
       const csp = a.sst.is_csp ? aName : bName;
       const not = a.sst.is_csp ? bName : aName;
+      const cspCovered = (a.sst.is_csp ? a.sst : b.sst).sst_member_states_covered_free;
       entries.push({
         q: `Is ${aName} or ${bName} SST certified?`,
-        a: `${csp} is. ${not} isn't. SST certification can mean free filings in up to 24 member states for customers who qualify (no physical nexus in those states), which materially shifts the math against ${not} for high-volume sellers.`,
+        a: `${csp} is. ${not} isn't. SST certification means free filings in SST member states for customers who qualify (no physical nexus in those states)${cspCovered ? `, and ${csp} covers all ${cspCovered} of them` : ''}, which materially shifts the math against ${not} for high-volume sellers.`,
       });
     } else {
       entries.push({

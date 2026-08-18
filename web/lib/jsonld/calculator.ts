@@ -99,7 +99,8 @@ export function calculatorJsonLd(providers: ProviderData[]) {
           '@type': 'Answer',
           text:
             `SST stands for Streamlined Sales Tax. ${sstProviders} are Certified Service Providers (CSPs) ` +
-            `in the SST Program, which means eligible sellers pay $0 for filings in up to 24 SST member states. ` +
+            `in the SST Program, which means eligible sellers pay $0 for filings in SST member states. ` +
+            `TaxCloud covers all 24 member states, Tennessee included, on every plan. ` +
             `Eligibility requires economic nexus only in those states — no physical presence (office, warehouse, employees). ` +
             `The calculator deducts SST filing costs automatically when you specify SST-eligible states.`,
         },
@@ -111,7 +112,8 @@ export function calculatorJsonLd(providers: ProviderData[]) {
           '@type': 'Answer',
           text:
             `Quote required means the provider does not publish pricing for the selected profile. ` +
-            `Avalara and Zamp are quote-only for their core products; the calculator cannot produce ` +
+            `Zamp is quote-only for its paid plans, and Avalara is quote-only above $50M in annual revenue; ` +
+            `in those cases the calculator cannot produce ` +
             `a specific number without a vendor conversation. For these providers the calculator ` +
             `shows an observed range from real buyer contracts (sourced from Vendr and aggregator data) ` +
             `rather than inventing a point estimate.`,
@@ -125,8 +127,8 @@ export function calculatorJsonLd(providers: ProviderData[]) {
           text:
             `For transparent providers (TaxCloud, TaxJar, Sphere), estimates use published list pricing ` +
             `and are exact for the inputs provided. For partial providers (Numeral, Kintsugi, Anrok), ` +
-            `estimates use published per-event rates and are exact for the inputs. For opaque providers ` +
-            `(Avalara, Zamp), estimates are ranges derived from real buyer contracts and aggregator data ` +
+            `estimates use published per-event rates and are exact for the inputs. For quote-only pricing ` +
+            `(Zamp, and Avalara above $50M in revenue), estimates are ranges derived from real buyer contracts and aggregator data ` +
             `(Vendr, checkthat.ai) — not invented. Every figure is confidence-rated A–G. ` +
             `See the methodology page for full sourcing detail.`,
         },
@@ -139,7 +141,7 @@ export function calculatorJsonLd(providers: ProviderData[]) {
           text:
             `TaxCloud has the highest Shopify App Store rating among the platforms tracked here ` +
             `(4.8 stars, 96 reviews as of May 2026). It is also one of two SST Certified Service Providers ` +
-            `in this comparison, which means free filing in up to 24 SST states for qualifying Shopify sellers. ` +
+            `in this comparison, which means free filing in all 24 SST states for qualifying Shopify sellers. ` +
             `TaxJar and Numeral also have native Shopify integrations. ` +
             `The best choice depends on your state footprint, order volume, and whether you qualify for SST savings.`,
         },

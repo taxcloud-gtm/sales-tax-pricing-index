@@ -108,8 +108,12 @@ export function pairTldr(a: ProviderData, b: ProviderData): string | null {
     if (!aR || !bR) return null;
     const aName = a.provider.name;
     const bName = b.provider.name;
-    const aCost = renderEstimate(aR.estimate);
-    const bCost = renderEstimate(bR.estimate);
+    // `renderEstimate` prefixes floors with "From", which collides with the
+    // "runs about" phrasing below. Say "starts at $X" for floors instead.
+    const phrase = (r: typeof aR, name: string) =>
+      r.estimate.type === 'starting_at'
+        ? `${name} starts at ${money(r.estimate.annualCostUSD)}`
+        : `${name} runs about ${renderEstimate(r.estimate)}`;
     const profile =
       `${midMarket.annualOrders.toLocaleString()} orders/year, ${midMarket.annualFilings} filings, ` +
       `${midMarket.statesFiling} states with ${midMarket.sstEligibleStates} SST, on Shopify`;
@@ -122,14 +126,14 @@ export function pairTldr(a: ProviderData, b: ProviderData): string | null {
       const cheaper = aAnn < bAnn ? aName : bName;
       const diff = Math.abs(aAnn - bAnn);
       return (
-        `At a typical mid-market profile (${profile}), ${aName} runs about ${aCost}/year ` +
-        `and ${bName} runs about ${bCost}/year, making ${cheaper} the cheaper option by ` +
+        `At a typical mid-market profile (${profile}), ${phrase(aR, aName)}/year ` +
+        `and ${phrase(bR, bName)}/year, making ${cheaper} the cheaper option by ` +
         `${money(diff)} per year for this profile.`
       );
     }
     return (
-      `At a typical mid-market profile (${profile}), ${aName} runs about ${aCost}/year ` +
-      `and ${bName} runs about ${bCost}/year.`
+      `At a typical mid-market profile (${profile}), ${phrase(aR, aName)}/year ` +
+      `and ${phrase(bR, bName)}/year.`
     );
   } catch {
     return null;

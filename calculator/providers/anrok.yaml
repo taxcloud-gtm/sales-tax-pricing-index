@@ -1,12 +1,20 @@
 # =============================================================================
-# Anrok, populated example following schema.yaml v1.0
-# Last full verification: 2026-05-11
+# Anrok, following schema.yaml v1.0
+# Last full verification: 2026-08-18
 # Researcher: TaxCloud GTM
 #
+# 2026-08-18 REPRICE
+# Anrok abandoned the subscription + basis-points model. Pricing is now a flat
+# fee per market per month, with a separate, cheaper product line for
+# ecommerce sellers. No basis-point rate appears anywhere on the pricing page.
+# Every price in the previous version of this file ($499/$999 Starter/Core,
+# 40/30 bps) is obsolete. Verified twice against the live page and the FAQ.
+#
 # Why Anrok is worth modeling carefully:
-# - Tests the hybrid pricing primitive (subscription + bps per taxable txn)
-# - Tests per-plan transaction_fee_rate_override (40 bps Starter / 30 bps Core)
-# - SaaS-focused, illustrates ICP mismatch with most ecommerce competitors
+# - Now tests the per_region_flat primitive alongside Sphere, with a nearly
+#   identical unit definition (EU via OSS counts as one)
+# - Two product lines at different rates ($100 general, $50 ecommerce)
+# - Undisclosed high-volume surcharge on Starter is a real opacity gap
 # =============================================================================
 
 provider:
@@ -19,53 +27,65 @@ provider:
   primary_url: "https://www.anrok.com"
   pricing_url: "https://www.anrok.com/pricing"
   help_center_url: null
-  target_icp: "SaaS companies of all sizes; Anrok publishes no overall ARR ceiling. Strongest fit is sub-$50M ARR digital businesses with global expansion plans (heuristic; Anrok's only published ARR guidance is the <$2M Starter tier, which is a tier best-fit, not an overall ICP cap)"
+  target_icp: "Originally SaaS-only; as of the 2026 reprice Anrok sells a separate ecommerce line at half the per-market rate. No ARR thresholds are published for any tier. Strongest fit remains digital businesses with multi-jurisdiction footprints, where the per-market unit is small and predictable."
   primary_verticals:
     - saas
-  competitive_position: "SaaS-focused sales tax platform built for software businesses. Differentiates on SaaS-specific taxability handling, payroll/HR integration for physical nexus tracking, and global VAT coverage. Hybrid pricing (subscription + bps) is unusual in the category but predictable for SaaS finance teams accustomed to consumption-based vendor models."
+    - ecommerce
+  competitive_position: "SaaS-first sales tax platform that moved to flat per-market pricing in 2026, abandoning the subscription-plus-basis-points model that made it the odd one out in the category. The new structure prices almost identically to Sphere ($100 per unit per month, EU-via-OSS counted as one unit), and undercuts it at $50 for ecommerce sellers. Differentiates on SaaS taxability handling, payroll/HR integration for physical nexus tracking, and global VAT coverage."
 
 transparency:
   tier: partial
-  rationale: "Two of three plans have fully published subscription + bps pricing on the pricing page ($499/mo + 40 bps for Starter, $999/mo + 30 bps for Core). Growth is the only tier requiring a quote. The pricing page does not publish ARR ranges for any tier, only Starter has a stated ICP fit (<$2M ARR)."
+  rationale: "Both Starter tiers publish a flat per-market rate ($100 general, $50 ecommerce). Both Custom tiers are quote-only. Anrok publishes the unit definition of a 'market' but does not publish the high-volume surcharge that can apply on Starter, and publishes no ARR or volume thresholds for when a buyer is pushed to Custom."
   pricing_page_has_dollar_amounts: true
   quote_required_for_core_product: false
   publishes_filing_fees: true
-  publishes_registration_fees: false
+  publishes_registration_fees: true
   publishes_overage_rates: false
   publishes_implementation_fees: false
 
 pricing_model:
-  primary: hybrid
+  primary: per_region_flat
   scales_with:
-    - transactions
-    - revenue
+    - jurisdictions
   predictability_score: 4
-  predictability_notes: "Subscription portion is fixed. Transaction fee scales linearly with taxable transaction dollar volume, predictable but increases with growth. Growth plan opacity reduces predictability for enterprise customers."
+  predictability_notes: "Highly predictable at the unit level: cost = active markets x monthly rate. Two things stop it being a 5. Anrok discloses that Starter customers with high transaction volumes 'may be subject to additional fees to cover 3rd party fees we may incur' without publishing a threshold or a rate, and it publishes no volume boundary at which a buyer is moved to Custom."
 
+# -----------------------------------------------------------------------------
+# Plans
+#
+# Anrok sells two product lines from one pricing page, each with a Starter and
+# a Custom tier. The only difference between the lines at Starter is the rate.
+#
+# UNIT DEFINITION, published by Anrok:
+#   each US state = 1 market
+#   EU filed via OSS = 1 market
+#   Canada federal GST/HST = 1 market
+#   BC, Manitoba, Saskatchewan and Quebec each count as their own market
+# -----------------------------------------------------------------------------
 plans:
   - name: "Starter"
     slug: "starter"
-    tagline: "Sales tax compliance from day one, Anrok lists this tier as best for companies under $2M ARR"
-    target_customer: "Early-stage SaaS companies; Anrok's published guidance is <$2M ARR"
+    tagline: "Flat $100 per market per month, filings and registrations included"
+    target_customer: "Non-ecommerce companies, primarily SaaS and digital businesses. Anrok publishes no ARR ceiling for this tier."
     is_free: false
     is_quote_only: false
     monthly_price:
-      amount: 499
+      amount: 100
       type: exact
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     annual_price:
-      amount: 5988
-      type: exact
-      discount_pct_vs_monthly: 0
+      amount: null
+      discount_pct_vs_monthly: null
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     order_tiers: []
     overage:
-      model: none
-      description: "No tier overage, transaction fees apply linearly via bps."
+      model: per_unit
+      per_unit_cost: null
+      description: "Anrok discloses that Starter customers with high transaction volumes may be charged additional fees to cover third-party costs. Neither the volume threshold nor the rate is published."
     included_filings_per_period:
       count: null
       period: monthly
@@ -74,79 +94,77 @@ plans:
     api_access_included: false
     features:
       nexus_monitoring: true
-      exemption_certificate_mgmt: true  # listed in Starter's "includes" per pricing page
+      exemption_certificate_mgmt: true
       multi_state_filing: true
       audit_support: false
       phone_support: false
       dedicated_csm: false
       sst_program_access: false
       vda_support: false
-      international_vat_gst: false
-    transaction_fee_rate_override: 40  # 40 bps on Starter
+      international_vat_gst: true
 
-  - name: "Core"
-    slug: "core"
-    tagline: "Modeling tools, tax-expert access, NetSuite and Salesforce integrations"
-    target_customer: "SaaS companies beyond Starter, no explicit ARR ceiling published. Adds the global exposure modeling tool, quarterly exposure report, ongoing compliance support, and ERP/CRM integrations."
+  - name: "Starter (eCommerce)"
+    slug: "ecommerce-starter"
+    tagline: "Flat $50 per market per month for ecommerce sellers, filings and registrations included"
+    target_customer: "Ecommerce sellers. Anrok launched a separate ecommerce product line priced at half the general rate."
     is_free: false
     is_quote_only: false
     monthly_price:
-      amount: 999
+      amount: 50
       type: exact
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     annual_price:
-      amount: 11988
-      type: exact
-      discount_pct_vs_monthly: 0
+      amount: null
+      discount_pct_vs_monthly: null
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     order_tiers: []
     overage:
-      model: none
-      description: "No tier overage, transaction fees apply linearly via bps at the lower 30 bps rate."
+      model: per_unit
+      per_unit_cost: null
+      description: "Same undisclosed high-volume third-party fee language applies to the ecommerce Starter tier."
     included_filings_per_period:
       count: null
       period: monthly
     included_integrations: null
     included_states: null
-    api_access_included: true
+    api_access_included: false
     features:
       nexus_monitoring: true
       exemption_certificate_mgmt: true
       multi_state_filing: true
       audit_support: false
-      phone_support: true
+      phone_support: false
       dedicated_csm: false
       sst_program_access: false
-      vda_support: true
+      vda_support: false
       international_vat_gst: true
-    transaction_fee_rate_override: 30  # 30 bps on Core
 
-  - name: "Growth"
-    slug: "growth"
-    tagline: "Custom pricing, unlimited historical filings, reconciliation, SSO, MSA, dedicated onboarding"
-    target_customer: "Enterprise SaaS. Anrok does not publish an ARR threshold for this tier; the Growth-only features (SSO, MSA, dedicated onboarding manager, unlimited backfile) suggest larger / regulated customers."
+  - name: "Custom"
+    slug: "custom"
+    tagline: "Quote-only. Pricing scales with total transaction volume."
+    target_customer: "Anrok publishes no threshold for this tier. Per its FAQ, Custom pricing scales with total transaction volume and is quoted after a sales conversation. Custom adds e-invoicing, address resolution API, MSA and SSO, audit-ready reporting, and priority support."
     is_free: false
     is_quote_only: true
     monthly_price:
       amount: null
       type: exact
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     annual_price:
       amount: null
-      type: exact
+      discount_pct_vs_monthly: null
       source: "https://www.anrok.com/pricing"
-      source_date: 2026-05-11
+      source_date: 2026-08-18
       confidence: A
     order_tiers: []
     overage:
       model: none
-      description: "Custom; negotiated."
+      description: "Custom, negotiated."
     included_filings_per_period:
       count: null
       period: none
@@ -172,7 +190,7 @@ filings:
     confidence: A
   state_upcharges: []
   volume_discounts: []
-  notes: "Filings are included in the subscription. No per-filing surcharge."
+  notes: "Filings are included in the per-market fee. Anrok's pricing page states there are no per-filing charges."
 
 registrations:
   has_per_registration_fee: false
@@ -181,15 +199,15 @@ registrations:
     source: "https://www.anrok.com/pricing"
     confidence: A
   includes_state_fees: false
-  notes: "Registrations included in subscription. State permit fees may pass through."
+  notes: "Registrations included in the per-market fee. State permit fees may pass through."
 
 transaction_fees:
-  has_transaction_fee: true
-  model: basis_points
-  rate: 40
-  rate_unit: bps
-  applies_to: taxable_only
-  notes: "Per-plan override: 40 bps on Starter, 30 bps on Core. Growth plan custom. Applies only to taxable transactions, not gross volume."
+  has_transaction_fee: false
+  model: null
+  rate: null
+  rate_unit: null
+  applies_to: null
+  notes: "The 40 bps / 30 bps basis-point fees recorded before 2026-08-18 no longer exist. No basis-point or per-transaction rate appears anywhere on Anrok's pricing page. The only volume-linked cost disclosed is an unquantified third-party fee that may apply to high-volume Starter customers, and volume-scaled pricing on the quote-only Custom tier."
 
 add_ons:
   implementation_fee:
@@ -210,7 +228,7 @@ add_ons:
     source: "https://www.anrok.com/pricing"
     confidence: A
   audit_support:
-    included_in_plan: "Growth"
+    included_in_plan: "Custom"
     additional_cost: null
     hours_included: null
     source: "https://www.anrok.com/pricing"
@@ -221,27 +239,31 @@ add_ons:
   payment_method_fees:
     credit_card_surcharge_pct: null
     source: ""
-  other_fees: []
+  other_fees:
+    - name: "High-volume third-party fee (Starter)"
+      cost: null
+      description: "Anrok: 'On the Starter plan, sellers with high transaction volumes may be subject to additional fees to cover 3rd party fees we may incur.' No threshold or rate published."
+      source: "https://www.anrok.com/pricing"
 
 sst:
   is_csp: false
   sst_member_states_covered_free: 0
   eligibility_requirements: "N/A, Anrok is not an SST CSP."
   filings_covered_under_csp: false
-  source: "https://www.anrok.com"
+  source: "https://www.streamlinedsalestax.org/certified-service-providers/certified-service-providers-list"
 
 international:
   supports_vat: true
   supports_gst: true
   countries_covered: 80
-  pricing_model_international: "International coverage included in Core and Growth plans. Same bps rate applies to international taxable transactions."
-  source: "https://www.anrok.com"
+  pricing_model_international: "International jurisdictions are billed as markets on the same flat rate. Anrok counts the EU filed via OSS as a single market, and Canada federal GST/HST as a single market with BC, Manitoba, Saskatchewan and Quebec counted separately."
+  source: "https://www.anrok.com/pricing"
 
 discounts:
   annual_billing_discount_pct: 0
   multi_year_discount_available: false
   startup_program: false
-  notes: "No published annual prepay discount. Pricing is structured for predictable monthly SaaS billing."
+  notes: "No annual prepay pricing is published. The pricing page quotes a monthly per-market rate only."
 
 commitments:
   contract_length_options:
@@ -258,31 +280,42 @@ commitments:
 sources:
   - url: "https://www.anrok.com/pricing"
     title: "Anrok Pricing"
-    accessed_date: 2026-05-12
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans
-      - subscription_prices
-      - bps_rates
-      - starter_features
-      - core_features
-      - growth_features
-  - url: "https://www.g2.com/products/anrok/pricing"
-    title: "Anrok pricing sheet, G2"
-    accessed_date: 2026-05-12
-    confidence: B
+      - per_market_rate
+      - ecommerce_rate
+      - market_definition
+      - filings_included
+      - registrations_included
+      - high_volume_surcharge
+  - url: "https://www.anrok.com/faq"
+    title: "Anrok FAQ, pricing section"
+    accessed_date: 2026-08-18
+    confidence: A
     fields_supported:
-      - plans
-      - subscription_prices
-      - starter_arr_cap
-  - url: "https://www.trustradius.com/products/anrok/reviews"
-    title: "Anrok Pricing & Features, TrustRadius"
-    accessed_date: 2026-05-11
-    confidence: C
+      - per_market_rate
+      - ecommerce_rate
+      - custom_plan_volume_scaling
+  - url: "https://www.anrok.com/resources/introducing-anrok-atlas-your-intelligent-tax-partner"
+    title: "Introducing Anrok Atlas"
+    accessed_date: 2026-08-18
+    confidence: D
     fields_supported:
-      - growth_plan_custom_pricing
+      - product_context
+  - url: "https://www.businesswire.com/news/home/20251015978298/en/Anrok-Raises-Series-C-to-Bring-Funding-to-Over-$100-Million"
+    title: "Anrok Raises Series C, funding over $100M"
+    accessed_date: 2026-08-18
+    confidence: D
+    fields_supported:
+      - company_context
 
 change_log:
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "Anrok replaced subscription-plus-basis-points pricing with a flat fee per market per month. Starter is $100 per market per month for non-ecommerce companies and $50 per market per month on a new ecommerce product line. The $499/mo Starter and $999/mo Core plans no longer exist, the 40 bps and 30 bps transaction fees are gone from the pricing page entirely, the Growth tier is renamed Custom, and the published <$2M ARR guidance for Starter has been removed. Anrok now publishes a unit definition for a market (each US state, EU via OSS as one, Canada federal GST/HST as one with BC, Manitoba, Saskatchewan and Quebec separate). New disclosure: high-volume Starter sellers may be charged unquantified third-party fees. Anrok did not announce the change and its pricing page carries no last-updated date, so the exact date it took effect is unknown; it falls between our 2026-05-11 verification and 2026-08-18."
+    source: "https://www.anrok.com/pricing"
   - date: 2026-05-12
     change_type: structure_change
     description: "Verified Anrok pricing against the published pricing sheet (mirrored on G2). Three corrections: Starter ICP is <$2M ARR (we had <$5M), exemption certificates are included in Starter (we had it gated to Core+), and no explicit ARR range is published for Core or Growth (we had inferred $5M-$50M and $50M+)."
@@ -290,35 +323,49 @@ change_log:
 
 calculator:
   applicable_inputs:
-    - annual_revenue
-    - monthlyTransactionVolumeUSD
+    - states_filing
+    - integration_type
+    - monthly_orders
   cost_formula_notes: |
-    1. Pick plan by annual_revenue:
-       - <$2M: Starter ($499/mo + 40 bps), matches Anrok's published Starter ICP
-       - $2M-$50M: Core ($999/mo + 30 bps), Anrok does not publish a ceiling here; $50M is our heuristic
-       - >$50M: Growth (custom, return quote_required), our heuristic; Anrok publishes no ARR threshold for Growth
-    2. Subscription = monthly_price × 12
-    3. Transaction fee = annual_taxable_transaction_volume × (bps / 10,000)
-    4. Total annual = subscription + transaction_fee
-  output_caveat: "Anrok is SaaS-focused. Ecommerce customers should consider providers built for their use case. Transaction fees apply to taxable transactions only, not gross volume, actual cost may be lower than the estimate if a significant share of transactions are non-taxable (e.g., B2B with reseller exemptions)."
+    1. Count markets = states_filing + international_countries.
+       Anrok's published unit definition treats each US state as one market and
+       the EU filed via OSS as one market. We count international_countries
+       one-for-one, which slightly overstates cost for EU-heavy buyers.
+    2. Pick the rate by product line:
+       - ecommerce integrations (Shopify, BigCommerce, WooCommerce) -> $50/market/mo
+       - everything else -> $100/market/mo
+       Anrok publishes no rule for which line a buyer falls into beyond
+       "eCommerce companies"; integration type is our proxy and is disclosed
+       as an assumption in the output.
+    3. Annual total = markets x rate x 12
+    4. No filing, registration, or basis-point fees are added. Anrok includes
+       filings and registrations in the per-market fee.
+  output_caveat: "Anrok includes filings and registrations in the flat per-market fee, so this estimate is the whole recurring bill for buyers who stay on Starter. Two costs are not modeled because Anrok does not publish them: the third-party surcharge that may apply to high-volume Starter sellers, and the Custom tier, which Anrok quotes against total transaction volume with no published threshold for when a buyer is moved onto it."
 
 notes: |
-  Anrok is unusual in the competitive set: hybrid pricing (subscription + bps)
-  is rare. The implicit comparison vs. percent-of-revenue pricing is favorable
-  (much lower share of revenue), but the explicit comparison vs. flat per-filing
-  pricing is unfavorable above ~$5M annual taxable volume.
-  
-  For the /vs/anrok landing page:
-  - Anrok is SaaS-focused; ecommerce comparisons should be framed as ICP
-    mismatch rather than direct competitor positioning.
-  - Anrok is not an SST CSP. For SaaS businesses, this matters less than for
-    ecommerce because most SaaS isn't taxable in SST states, but it matters
-    for states where SaaS is taxable.
-  - Hybrid pricing penalizes growth. A SaaS at $10M ARR scaling to $50M ARR
-    sees their Anrok bill grow ~5x if transaction volume scales proportionally,
-    even staying on the same plan tier.
-  
+  The August 2026 reprice makes Anrok structurally comparable to Sphere for the
+  first time. Both now sell a flat monthly fee per jurisdiction unit, both count
+  the EU filed via OSS as a single unit, and both list $100 as the headline
+  rate. Anrok's ecommerce line at $50 undercuts Sphere by half. This is worth
+  its own comparison content: two AI-native, VC-backed, SaaS-first vendors
+  converging on the same pricing primitive within months of each other.
+
+  What changed in the buyer conversation:
+  - The old "hybrid pricing penalizes growth" argument is dead. Anrok's bill no
+    longer scales with revenue or transaction value at the Starter tier. Any
+    TaxCloud content still making that argument needs rewriting.
+  - The new cost driver is jurisdiction count. Anrok gets expensive for buyers
+    filing in many states and cheap for buyers filing in few, which is the
+    opposite of how per-filing pricers behave.
+  - At 20 states, Anrok Starter is $24,000/yr general or $12,000/yr ecommerce
+    with everything included. That is a real number to compare against, and it
+    is no longer obviously more expensive than a per-filing model at high
+    filing counts.
+  - Anrok is still not an SST CSP, so the SST free-filing comparison is
+    unaffected by the reprice and is now a larger share of the total gap.
+
   Open research items:
-  - Growth plan structure: is it fully custom or is there a published rate floor?
-  - Specific VDA and backfile pricing
-  - International country list and any per-country surcharges
+  - The high-volume third-party fee: threshold and rate are both unpublished.
+  - Whether the Custom tier has a published or de facto market-count trigger.
+  - Whether the ecommerce line has feature differences beyond the rate.
+  - Whether annual prepay pricing exists but is unpublished.
