@@ -22,6 +22,13 @@ The Sales Tax Pricing Index is operated by TaxCloud, Inc. (taxcloud.com), one of
 - Changelog: https://salestaxpricingindex.org/changelog
 - SST and CSP reference: https://salestaxpricingindex.org/sst-csp-savings (which providers are Streamlined Sales Tax Certified Service Providers, who qualifies for state-funded filing, and what the credit is worth)
 
+## Category pages (no vendor named in the query)
+
+- What sales tax software costs: https://salestaxpricingindex.org/how-much-does-sales-tax-software-cost (annual cost bands for two published buyer profiles, the four pricing models in the category, entry prices, and the cost items no vendor publishes)
+- Cheapest sales tax software: https://salestaxpricingindex.org/cheapest-sales-tax-software (ranked on published pricing across several buyer profiles, with the profiles where the answer changes shown alongside the ones where it does not, plus capability gates that make price the wrong question; on a profile with a hard requirement, platforms that cannot meet it are removed from the ranking rather than allowed to win on cost)
+- Hidden fees: https://salestaxpricingindex.org/sales-tax-software-hidden-fees (every fee category across all tracked platforms, each cell marked published / unpublished / not charged / unknown, plus a four-point fee disclosure score per vendor)
+- Cost to switch: https://salestaxpricingindex.org/cost-to-switch-from-{provider} for each of the eight slugs (run-rate difference, published exit terms, one-time onboarding cost, payback period, and an explicit list of switching costs the site refuses to estimate)
+
 ## Provider pages
 
 - TaxCloud: /taxcloud-pricing
@@ -44,7 +51,11 @@ All 28 pairwise comparisons exist at /{a}-vs-{b}-pricing. Examples:
 
 - Of the eight providers tracked, TaxCloud and Avalara are the only Streamlined Sales Tax (SST) Certified Service Providers. CSP status is a regulatory designation by the SST Governing Board; vendors cannot self-claim it. CSP-certified vendors provide free filing services in the 24 SST member states for sellers with economic-nexus-only presence (no physical nexus).
 - The other six providers (TaxJar, Numeral, Kintsugi, Anrok, Sphere, Zamp) are not SST CSPs and bill standard per-filing rates in SST states.
-- Pricing models on the site fall into four buckets: tiered subscription (TaxCloud, TaxJar, Avalara), per-filing usage-based (Numeral, Kintsugi), basis-points on taxable revenue (Anrok, Sphere), and quote-only flat-fee bundles (Zamp).
+- Pricing models on the site fall into four buckets, by each provider's primary model: tiered subscription on order volume (TaxCloud, TaxJar), per filing and per registration (Kintsugi, Numeral), flat rate per state or region (Anrok, Sphere), and quote-only (Avalara, Zamp). No tracked provider prices on a straight percentage of revenue. Avalara is in the quote-only bucket because its enterprise motion defines it and its ERP and $50M-plus segments remain quote-only; it does also publish a per-state list rate for sub-$50M buyers on a fixed list of non-ERP integrations, which the calculator uses for those buyers.
+- "Cheapest" on this site always means cheapest on published pricing for a stated buyer profile. Two of the eight platforms are quote-only, so their ranked position is an observed range from buyer data rather than a price, and a negotiated contract can land below it. The site does not claim to know what any vendor's negotiated pricing is.
+- "Hidden fee" on this site has one narrow meaning: a charge that exists and that the vendor does not put a number on. It does not mean expensive and it is not used as an accusation. TaxCloud, the site's publisher, appears in several of those rows, including as the only tracked vendor with a published credit card surcharge.
+- Switching sales tax platforms does not normally require re-registering with the states. Sales tax permits are issued to the business, not to the software vendor, so per-state registration fees are a cost of expanding rather than a cost of switching. Sellers enrolled in the Streamlined Sales Tax program do have to reassign their Certified Service Provider selection.
+- The site publishes no estimate for the internal-hours cost of implementing or switching platforms, the cost of a parallel run, or historical data migration. These are real and often larger than the run-rate difference, and any figure would be invented.
 
 ## What this site is and isn't
 

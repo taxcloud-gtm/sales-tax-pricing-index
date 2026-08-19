@@ -24,6 +24,9 @@ export function Footer() {
           <ul className="mt-2 space-y-1">
             <li><Link href="/calculator" className="no-underline hover:text-accent">Calculator</Link></li>
             <li><Link href="/" className="no-underline hover:text-accent">All providers</Link></li>
+            <li><Link href="/how-much-does-sales-tax-software-cost" className="no-underline hover:text-accent">What sales tax software costs</Link></li>
+            <li><Link href="/cheapest-sales-tax-software" className="no-underline hover:text-accent">Cheapest sales tax software</Link></li>
+            <li><Link href="/sales-tax-software-hidden-fees" className="no-underline hover:text-accent">Hidden fees</Link></li>
           </ul>
         </div>
       </div>

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { PROVIDER_SLUGS, getProvider, getAllProviders } from '@/lib/data/providers';
-import { providerPath, pairPath } from '@/lib/slugs';
+import { providerPath, pairPath, switchPath } from '@/lib/slugs';
 import { lastUpdated } from '@/lib/last-updated';
 import { absoluteUrl } from '@/lib/utils';
 import { providerPageJsonLd } from '@/lib/jsonld';
@@ -101,6 +101,13 @@ export default async function ProviderPage({ params }: { params: Promise<{ slug:
         </ul>
         <p className="text-xs text-ink-subtle mt-4">
           Or <Link href="/calculator" className="no-underline hover:text-accent">run the calculator</Link> to see how {provider.provider.name} stacks up against all eight for your business.
+        </p>
+        <p className="text-xs text-ink-subtle mt-2">
+          Already on {provider.provider.name}?{' '}
+          <Link href={switchPath(slug)} className="no-underline hover:text-accent">
+            What it costs to switch from {provider.provider.name}
+          </Link>
+          .
         </p>
       </section>
     </article>
