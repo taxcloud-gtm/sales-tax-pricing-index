@@ -192,7 +192,22 @@ export interface FilingsInfo {
    * ignores base_cost.amount. (TaxCloud uses this model.)
    */
   tier_pricing?: FilingTier[];
+  /**
+   * Filing-credit bundles sold to annual subscribers, keyed by plan slug.
+   * A `filings` of null means "unlimited". Used by TaxJar, which sells blocks
+   * of AutoFile credits at a discount to its per-filing rate.
+   */
+  bundle_pricing?: Record<string, FilingBundle[]>;
   notes?: string;
+}
+
+export interface FilingBundle {
+  /** Filings covered by the bundle; null means unlimited. */
+  filings: number | null;
+  /** Total annual price for the bundle (USD). */
+  annual_price: number;
+  source?: string;
+  confidence?: ConfidenceRating;
 }
 
 export interface RegistrationsInfo {

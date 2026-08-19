@@ -16,7 +16,7 @@ provider:
   name: "Kintsugi"
   slug: "kintsugi"
   legal_name: "Kintsugi AI, Inc."
-  parent_company: null  # Independent; Vertex holds 10% strategic stake (per Galvix)
+  parent_company: null  # Independent. Vertex made a strategic investment; the widely repeated 10% figure is NOT confirmed by any primary source (see notes).
   hq_location: "San Francisco, California, USA"
   founded_year: 2022
   primary_url: "https://www.trykintsugi.com"
@@ -26,11 +26,11 @@ provider:
   primary_verticals:
     - ecommerce
     - saas
-  competitive_position: "AI-native positioning with proprietary 'Kintsugi Intelligence' tax engine. Vertex Inc. holds a reported 10% strategic stake, providing legacy enterprise tax credibility. Founded 2022 by ex-Facebook ML engineer Pujun Bhatnagar. Positioned against Avalara and TaxJar as a modern alternative with feature-matrix transparency on the pricing page."
+  competitive_position: "AI-native positioning with proprietary 'Kintsugi Intelligence' tax engine. Vertex Inc. made a strategic investment and the two launched a joint SMB product, 'Kintsugi powered by Vertex', in October 2025, which lends legacy enterprise tax credibility. The commonly cited 10% stake is not confirmed by any primary source. Founded 2022 by ex-Facebook ML engineer Pujun Bhatnagar. Positioned against Avalara and TaxJar as a modern alternative with feature-matrix transparency on the pricing page."
 
 transparency:
   tier: partial
-  rationale: "Free tier and Starter plan have published per-event pricing ($75 per filing or registration). Premium plan is custom-quoted with no published dollar amount. Feature comparison matrix is detailed and transparent across all three tiers. Pricing page also explicitly states 'No onboarding fees, no implementation fees, no annual commitments.'"
+  rationale: "Free tier and Starter plan have published per-event pricing ($75 per filing or registration). Premium plan is custom-quoted with no published dollar amount. Feature comparison matrix is detailed and transparent across all three tiers. Pricing page states, verbatim as of 2026-08-18: 'No onboarding fees. No transaction fees, we don't penalize you for growth. No long-term contract lock-in.'"
   pricing_page_has_dollar_amounts: true  # For Free and Starter only
   quote_required_for_core_product: false  # Starter is self-serve
   publishes_filing_fees: true
@@ -231,7 +231,7 @@ add_ons:
     range_min: null
     range_max: null
     source: "https://www.trykintsugi.com/pricing"
-    confidence: A  # Pricing page explicitly states 'No onboarding fees. No implementation fees.'
+    confidence: A  # Pricing page states 'No onboarding fees.' (verbatim 2026-08-18)
   
   vda_pricing:
     has_service: true
@@ -288,14 +288,14 @@ international:
 
 discounts:
   annual_billing_discount_pct: null
-  multi_year_discount_available: false  # Page explicitly says 'No annual commitments. Ever.'
+  multi_year_discount_available: false  # Page says 'No long-term contract lock-in.'
   startup_program: false
-  notes: "Pricing page explicitly states: 'No onboarding fees. No implementation fees. No annual commitments. Ever.' Premium plan offers 'volume based discount' but specific terms not published."
+  notes: "Pricing page states, verbatim as of 2026-08-18: 'No onboarding fees. No transaction fees, we don't penalize you for growth. No long-term contract lock-in.' The wording previously quoted here ('No onboarding fees. No implementation fees. No annual commitments. Ever.') is no longer on the page. Same substantive promise, different words, but we were presenting it as a quote. Premium offers a 'volume based discount' with terms not published."
 
 commitments:
   contract_length_options:
     - month_to_month
-  cancellation_terms: "No annual commitments per pricing page. Implied month-to-month."
+  cancellation_terms: "No long-term contract lock-in per pricing page. Implied month-to-month."
   free_trial:
     has_trial: false  # Free tier is ongoing, not a trial
     length_days: null
@@ -341,7 +341,11 @@ sources:
       - founder_background
       - founded_year
 
-change_log: []  # No pricing changes documented to date; monitor for changes given Galvix-reported $500/mo Premium that no longer appears on current page
+change_log:
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "No price changed: the free tier, the $75 per filing or registration rate, and the quote-only Premium tier are all unchanged. Three data corrections. The no-fee language we quoted ('No onboarding fees. No implementation fees. No annual commitments. Ever.') is no longer on the page; the current wording is 'No onboarding fees. No transaction fees, we don't penalize you for growth. No long-term contract lock-in.' Same promise, different words, and we were presenting it as a verbatim quote. The widely repeated claim that Vertex holds a 10% stake is downgraded to unverified, since Vertex's own release describes a strategic investment without disclosing a percentage and no primary source confirms the figure. And 'Kintsugi powered by Vertex', a joint AI tax automation product for SMBs announced 2025-10-08, was missing from our record entirely. Also captured: Premium gates multi-country compliance across 100+ countries, and Kintsugi now names two AI products on the pricing page, the in-app assistant 'Kin' (available from the free tier) and 'Kintsugi Intelligence'. Neither is separately priced. Note that a third-party pricing write-up updated 2026-08-14 still reports Premium at $500/month for up to seven states; that remains anecdotal and is not confirmed by Kintsugi."
+    source: "https://trykintsugi.com/pricing"  # No pricing changes documented to date; monitor for changes given Galvix-reported $500/mo Premium that no longer appears on current page
 
 calculator:
   applicable_inputs:
@@ -380,13 +384,18 @@ notes: |
     backfile, Kintsugi is $2,250 vs. Numeral $4,500.
   - Kintsugi is NOT SST certified. Same SST narrative as Numeral applies, multi-state
     SST footprint is a major cost advantage for TaxCloud customers.
-  - Vertex's 10% strategic stake is competitive context worth surfacing. It suggests a
-    potential acquisition path or deep partnership that could change Kintsugi's product
-    posture over time. Customers evaluating multi-year compliance commitments may want
-    to know.
-  - 'No annual commitments. Ever.' on the pricing page is a customer-friendly stance;
-    TaxCloud's annual prepay discount may need to be reframed as a customer benefit
-    rather than a commitment requirement.
+  - Vertex's strategic investment is competitive context worth surfacing, and the
+    two now ship a joint SMB product ('Kintsugi powered by Vertex', Oct 2025).
+    That suggests a potential acquisition path or deep partnership that could
+    change Kintsugi's product posture over time, which customers evaluating
+    multi-year compliance commitments may want to know. Do NOT repeat the widely
+    cited 10% stake figure: Vertex's own release discloses a strategic investment
+    without a percentage, and no primary source confirms it.
+  - 'No long-term contract lock-in.' on the pricing page is a customer-friendly
+    stance; TaxCloud's annual prepay discount may need to be reframed as a
+    customer benefit rather than a commitment requirement. (Kintsugi softened
+    this line in 2026: it previously read 'No implementation fees. No annual
+    commitments. Ever.')
   - AI-native positioning is the main marketing wedge. Counter with: TaxCloud has been
     operating tax compliance for 15+ years at scale; AI features without operational
     depth and SST certification create risk for businesses that get audited.

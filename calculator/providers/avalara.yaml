@@ -40,15 +40,20 @@ provider:
   competitive_position: "Market incumbent (founded 2004, ~30,000 customers). Broadest integration catalog. Quote-based, sales-led GTM. Frequently criticized in reviews for opaque pricing, costly overages, and slow support."
 
 transparency:
-  tier: opaque
-  rationale: "Core platform (AvaTax, Returns, CertCapture) is quote-only with no published list pricing. Only narrow ancillary products (License Guidance, Sales Tax Registration, 1099 & W-9) have public per-unit pricing. Multiple third-party sources confirm pricing is custom and varies materially by customer."
-  pricing_page_has_dollar_amounts: true   # Yes, but only for low-touch products, not core
-  quote_required_for_core_product: true
+  tier: partial
+  rationale: "Upgraded from opaque in August 2026, but only partially. Avalara now publishes per-state list pricing for its core compliance bundle ($79/state/month, or $69/state/month with SST services), corroborated across roughly a dozen Avalara pages plus G2 and TrustRadius. Three things stop it being 'transparent'. The published plans support only 15 named non-ERP integrations, so every ERP buyer is quote-only at any revenue; the $50M+ segment remains quote-only; and the plans disclose no transaction limits, included return counts, per-filing fees, overage rates, or implementation fees, while the same page's FAQ still describes volume-based pricing. There is also no self-serve checkout — every CTA is a sales contact form, and the Returns and small-business pages remain quote-only. Ancillary products (License Guidance $119, registration $403/location, 1099 & W-9) continue to carry public per-unit pricing."
+  pricing_page_has_dollar_amounts: true
+  quote_required_for_core_product: false  # Below $50M revenue. Above $50M it still is.
   publishes_filing_fees: false
   publishes_registration_fees: true       # $403/state is published
   publishes_overage_rates: false
   publishes_implementation_fees: false
 
+# NOTE 2026-08: Avalara now runs two pricing motions. Under $50M revenue it is
+# per-state list pricing (published). At $50M+ it is still custom_quote. The
+# primary is kept as custom_quote because the enterprise motion is what defines
+# the brand and what the aggregator data below describes, but the calculator
+# routes sub-$50M buyers to the published per-state math.
 pricing_model:
   primary: custom_quote
   scales_with:
@@ -72,6 +77,131 @@ pricing_model:
 # provider can have multiple products each with multiple plans.
 # -----------------------------------------------------------------------------
 plans:
+  # ---------------------------------------------------------------------------
+  # PUBLISHED LIST PRICING, new 2026-07-30
+  #
+  # For the first time, Avalara publishes per-state list pricing for its core
+  # calculation + returns bundle.
+  #
+  # DATING. Avalara's own AEM metadata gives datePublished 2026-07-30 on BOTH
+  # the plan page and the main pricing hub, with the hub modified
+  # 2026-07-30T14:31:28Z — a coordinated same-day rollout. The plan page was
+  # modified again 2026-08-17. Wayback could not be read to prove absence
+  # beforehand (403 through our tooling), so 2026-07-30 is a strong inference
+  # from vendor metadata, not archival proof.
+  #
+  # CORROBORATION (checked 2026-08-18, four independent passes):
+  # - The "$699 per state, per year" anchor appears on ~11 Avalara-owned pages,
+  #   including AvaTax, the SST page, the Shopify/WooCommerce/Amazon/Stripe
+  #   integration pages, and the Avalara-vs-Anrok and Avalara-vs-TaxJar pages.
+  #   The main pricing hub links to the plan page in normal navigation, so this
+  #   is a site-wide rollout, not an orphaned test page.
+  # - G2 lists both plans at $79 and $69 per state per month, with its pricing
+  #   data stamped 2026-08-07. TrustRadius carries the same two figures plus the
+  #   "$50M / limited integrations" qualifier.
+  # - The full four-number grid ($79/$799/$69/$699) appears on only ONE Avalara
+  #   page. Everything else carries the $699 anchor alone.
+  # - ZERO editorial coverage. No press release, no blog post, and no third-party
+  #   article. Galvix's Avalara pricing piece, updated 2026-08-14, still
+  #   describes Avalara as entirely quote-only. Treat the strategic read as
+  #   provisional; the numbers themselves are solid.
+  #
+  # TWO GATES, and revenue is the weaker one:
+  # - $50M is a plan-card LABEL, not stated exclusion language. The page says
+  #   pricing "scales rather than locking into fixed tiers."
+  # - The real gate is the integration list. Both Core plans are labeled
+  #   "LIMITED INTEGRATIONS" and support 15 named connectors. Every ERP is
+  #   Custom-plan-only, so a $5M NetSuite seller is still quote-only.
+  #
+  # NOT a self-serve motion. All three plan CTAs are "Get started" contact
+  # forms. Avalara's Returns and small-business pages remain quote-only, and the
+  # plan page's own FAQ still describes volume-based pricing. These are list
+  # prices, not transactable prices.
+  #
+  # These two entries are confidence A. Everything below them (the AvaTax
+  # buyer-segment ranges) remains aggregator-sourced and applies to the $50M+
+  # segment and to every ERP buyer, both still quote-only.
+  # ---------------------------------------------------------------------------
+  - name: "Core Compliance"
+    slug: "core-compliance"
+    tagline: "Published per-state pricing for sellers under $50M in annual revenue"
+    target_customer: "Businesses under $50M in annual revenue running one of the 15 supported non-ERP integrations. Bundles AvaTax, AvaTax Exemptions, Managed Returns (filing, remittance and notice management), compliance support and audit readiness, and 50-state nexus monitoring. The $50M figure is a plan-card label rather than stated exclusion language; the binding constraint is the integration list."
+    is_free: false
+    is_quote_only: false
+    monthly_price:
+      amount: 79
+      type: exact
+      source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+      source_date: 2026-08-18
+      confidence: A
+    annual_price:
+      amount: 799
+      discount_pct_vs_monthly: 15
+      source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+      source_date: 2026-08-18
+      confidence: A
+    order_tiers: []
+    overage:
+      model: per_unit
+      per_unit_cost: null
+      description: "The plan page states no transaction limit and no included-return count. Avalara's general pricing language still says cost factors include transaction volume and integration footprint, so overage behavior at this list price is undocumented."
+    included_filings_per_period:
+      count: null
+      period: none
+    included_integrations: 15  # "LIMITED INTEGRATIONS": Amazon, BigCommerce, DualEntry, eBay, Etsy, Miva, QuickBooks Desktop, QuickBooks Online, Sage 50, Shopify, Shopify Marketplace Connect, Stripe, TikTok, Walmart, WooCommerce. No ERP.
+    included_states: null   # Priced per state; the rate IS the unit, not an allotment
+    api_access_included: false  # "flexible API" is listed as a Custom-plan feature
+    features:
+      nexus_monitoring: true
+      exemption_certificate_mgmt: true
+      multi_state_filing: true
+      audit_support: true
+      phone_support: true
+      dedicated_csm: false
+      sst_program_access: false
+      vda_support: false
+      international_vat_gst: false
+
+  - name: "Core Compliance + SST Services"
+    slug: "core-compliance-sst"
+    tagline: "Published per-state pricing with state-funded SST services, cheaper than the standard plan"
+    target_customer: "Businesses under $50M in annual revenue, on a supported non-ERP integration, that qualify as volunteer sellers in SST member states. A strict superset of Core Compliance: adds SST enrollment, state-sponsored registration, a single registration ID across participating states, Avalara-backed liability for calculation errors in participating SST states, and Avalara handling audit inquiries. Critically, the lower rate applies only to SST-eligible transactions in participating states; non-SST states revert to standard pricing."
+    is_free: false
+    is_quote_only: false
+    monthly_price:
+      amount: 69
+      type: exact
+      source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+      source_date: 2026-08-18
+      confidence: A
+    annual_price:
+      amount: 699
+      discount_pct_vs_monthly: 15
+      source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+      source_date: 2026-08-18
+      confidence: A
+    order_tiers: []
+    overage:
+      model: per_unit
+      per_unit_cost: null
+      description: "Same undocumented overage posture as Core Compliance. Avalara's fine print, verbatim: 'State-funded services apply only to SST-eligible transactions in participating states and only for qualifying volunteer sellers. If you operate in non-SST states, or in SST states where you don't meet the volunteer seller criteria, standard AvaTax and Managed Returns pricing applies.'"
+    included_filings_per_period:
+      count: null
+      period: none
+    included_integrations: 15  # Same "LIMITED INTEGRATIONS" list as Core Compliance. No ERP.
+    included_states: null   # Priced per state; the rate IS the unit, not an allotment
+    api_access_included: false
+    features:
+      nexus_monitoring: true
+      exemption_certificate_mgmt: true
+      multi_state_filing: true
+      audit_support: true
+      phone_support: true
+      dedicated_csm: false
+      sst_program_access: true
+      vda_support: false
+      international_vat_gst: false
+
   - name: "AvaTax (core tax calculation engine)"
     slug: "avatax"
     tagline: "Core sales tax calculation across 13,000+ U.S. jurisdictions; quote-based"
@@ -389,6 +519,48 @@ commitments:
 # Sources
 # -----------------------------------------------------------------------------
 sources:
+  - url: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+    title: "Sales and use tax pricing plans, Avalara"
+    accessed_date: 2026-08-18
+    confidence: A
+    fields_supported:
+      - plans.core-compliance
+      - plans.core-compliance-sst
+      - per_state_list_pricing
+      - sst_plan_pricing
+      - annual_discount_pct
+
+  - url: "https://www.g2.com/products/avalara/pricing"
+    title: "Avalara Pricing, G2"
+    accessed_date: 2026-08-18
+    confidence: C
+    fields_supported:
+      - plans.core-compliance
+      - plans.core-compliance-sst
+      - per_state_list_pricing
+    # Independent corroboration: G2 stamps its Avalara pricing data 2026-08-07
+    # and lists both plans at $79 and $69 per state per month. Vendor-submitted,
+    # so not editorial verification, but it is a dated off-Avalara echo.
+
+  - url: "https://www.trustradius.com/products/avalara/pricing"
+    title: "Avalara Pricing, TrustRadius"
+    accessed_date: 2026-08-18
+    confidence: C
+    fields_supported:
+      - plans.core-compliance
+      - plans.core-compliance-sst
+      - revenue_threshold
+      - limited_integrations
+
+  - url: "https://www.avalara.com/us/en/products/sales-and-use-tax/streamlined-sales-tax.html"
+    title: "Streamlined Sales Tax, Avalara"
+    accessed_date: 2026-08-18
+    confidence: A
+    fields_supported:
+      - sst
+      - per_state_list_pricing
+      - sst_state_count
+
   - url: "https://www.avalara.com/us/en/products/pricing.html"
     title: "Avalara Pricing Information"
     accessed_date: 2026-05-11
@@ -443,6 +615,18 @@ sources:
 change_log:
   # Avalara doesn't publish pricing changes; capture material business events
   # that affect pricing posture instead.
+  - date: 2026-08-18
+    change_type: new_plan
+    description: "Avalara published per-state list pricing for its core compliance bundle for the first time, on a new plan comparison page. Core Compliance is $79 per state per month or $799 per state per year; Core Compliance + SST Services is $69 per state per month or $699 per state per year; both are limited to sellers under $50M in annual revenue, above which pricing remains quote-only. Core Compliance bundles AvaTax, AvaTax Exemptions, Managed Returns, compliance support and audit readiness, integrations, and 50-state nexus monitoring. Two things are notable beyond the numbers. Avalara has priced its SST plan BELOW its standard plan, treating state-funded CSP economics as a customer-facing discount rather than absorbing it as margin, and this is the first public dollar figure anyone in the category has attached to SST. Dating: Wayback snapshots of the main pricing page on 2026-03-10, 2026-04-18 and 2026-07-23 show only the $119 and $403 figures, and the new plan page carries a dateModified of 2026-08-17, so the change is at most a few weeks old. Transparency tier moved from opaque to partial as a result."
+    source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "Adversarial re-verification of the 2026-07-30 pricing change, after the single-source finding was challenged. The numbers held across six independent reads and are echoed off-Avalara by G2 (pricing data stamped 2026-08-07) and TrustRadius, and the $699 anchor appears on roughly eleven Avalara-owned pages linked from the main pricing hub, so this is a site-wide rollout rather than an orphaned page. Three corrections came out of it. First, the $50M revenue line is a plan-card label, not stated exclusion language; the binding constraint is the integration list, since both Core plans are labeled 'LIMITED INTEGRATIONS' and support 15 named connectors with no ERP, making every NetSuite, SAP, Oracle, Dynamics or Acumatica buyer quote-only at any revenue. Second, the $69 SST rate is not a blended rate across a buyer's footprint: Avalara states that state-funded services apply only to SST-eligible transactions in participating states for qualifying volunteer sellers, and that standard pricing applies everywhere else, so the calculator now bills SST states at the SST rate and all other filing states at the standard rate. Third, Avalara's marketed 'up to 25 states' is the 24 SST member states plus Pennsylvania, which Avalara itself describes as an analogous program rather than SST membership. Also noted: this is a list price rather than a transactable one, since every plan CTA is a sales contact form, and no press release, blog post or third-party article covers the change at all."
+    source: "https://www.avalara.com/us/en/products/sales-and-use-tax/pricing.html"
+  - date: 2025-11-11
+    change_type: structure_change
+    description: "Avalara announced a $500M investment led by BlackRock. Combined with the confidential draft registration statement submitted in July 2025, Avalara remains Vista-owned and pre-IPO as of August 2026, with no completed listing."
+    source: "https://newsroom.avalara.com/2025-11-11-Avalara-Announces-500-Million-Investment-Led-by-BlackRock"
   - date: 2022-10-19
     change_type: structure_change
     description: "Avalara taken private by Vista Equity Partners for $8.4B. Subsequent customer reports suggest pricing posture has tightened, with more aggressive renewal increases and less negotiation flexibility."

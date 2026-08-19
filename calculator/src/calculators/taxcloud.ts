@@ -24,7 +24,9 @@ import {
 //   - Any other integration (ERP, custom API, B2B billing, other ecommerce
 //     platforms) → Premium (heavier integrations imply real-time API needs
 //     and the full SST CSP benefits Premium provides)
-//   - statesFiling === 0 falls back to Free (pre-compliance / monitoring only)
+//   - statesFiling === 0 previously fell back to Free. TaxCloud removed the
+//     Free plan (verified 2026-08-18), so pre-compliance buyers now land on
+//     Starter, the cheapest plan that actually exists.
 const STARTER_INTEGRATIONS: ReadonlyArray<UserInputs['integrationType']> = [
   'shopify',
   'stripe',
@@ -38,9 +40,9 @@ const STARTER_INTEGRATIONS: ReadonlyArray<UserInputs['integrationType']> = [
 // nexus in, not on how filings are distributed across non-SST states.
 const SST_FILINGS_PER_STATE_PER_YEAR = 12;
 
-function pickPlanSlug(inputs: UserInputs): 'free' | 'starter' | 'premium' {
+function pickPlanSlug(inputs: UserInputs): 'starter' | 'premium' {
   if (inputs.statesFiling === 0 && inputs.registrationBacklog === 0) {
-    return 'free';
+    return 'starter';
   }
   if (STARTER_INTEGRATIONS.includes(inputs.integrationType)) {
     return 'starter';
@@ -60,9 +62,9 @@ function pickOrderTier(plan: ReturnType<typeof findPlan>, monthlyOrders: number)
   const tiers = plan.order_tiers ?? [];
   if (tiers.length === 0) return null;
   for (const tier of tiers) {
-    if (monthlyOrders <= tier.included_orders) return tier;
+    if (monthlyOrders <= tier.included_orders) return { tier, capped: false };
   }
-  return tiers[tiers.length - 1];
+  return { tier: tiers[tiers.length - 1], capped: true };
 }
 
 // Walk the filings.tier_pricing ladder and return the annual price for the
@@ -87,15 +89,21 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
 
   const planSlug = pickPlanSlug(inputs);
   const plan = findPlan(data, planSlug);
-  const orderTier = pickOrderTier(plan, inputs.monthlyOrders);
+  const orderTierResult = pickOrderTier(plan, inputs.monthlyOrders);
+  const orderTier = orderTierResult?.tier ?? null;
   const annualDiscountPct =
     plan.annual_price.discount_pct_vs_monthly ??
     ((data.discounts as Record<string, unknown> | undefined)?.annual_billing_discount_pct as number) ??
     0;
   const perRegistrationCost = data.registrations.base_cost.amount ?? 0;
-  // SST CSP savings apply to any TaxCloud plan — TaxCloud is the CSP, so the
-  // free-filing benefit follows the customer regardless of which plan they're
-  // on. Gating to plan-level `sst_program_access` would understate savings.
+  // SST CSP savings apply on every TaxCloud plan — TaxCloud is the CSP, so the
+  // free-filing benefit follows the customer regardless of tier. Gating to
+  // plan-level `sst_program_access` would understate the savings.
+  //
+  // 2026-08-18: briefly gated to Premium after the help-center filing-fee
+  // article (support.taxcloud.com/article/192) read that way. Confirmed with
+  // TaxCloud that the benefit is available on all plans and reverted. The help
+  // article is the thing that is wrong, and it is flagged for correction.
   const sstCspBenefitAvailable = data.sst.is_csp;
 
   // Subscription: prefer the tier's explicit annual_price when annual billing
@@ -157,6 +165,11 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
   ].filter(Boolean);
 
   const caveats: string[] = [];
+  if (orderTierResult?.capped && orderTier) {
+    caveats.push(
+      `${(inputs.monthlyOrders * 12).toLocaleString()} orders/year exceeds the top published ${plan.name} tier (${(orderTier.included_orders * 12).toLocaleString()} orders/year). The subscription shown is that published ceiling. TaxCloud bills orders above tier at the tier's per-order rate, so actual cost will be higher${plan.slug === 'starter' ? '; Premium publishes tiers up to 480,000 orders/year' : ''}.`,
+    );
+  }
   if (filingTierResult?.capped) {
     caveats.push(
       `${billableFilings} billable filings exceeds the published top tier (${filingTierResult.tier.filings} filings). Custom pricing likely; estimate is the published ceiling.`,

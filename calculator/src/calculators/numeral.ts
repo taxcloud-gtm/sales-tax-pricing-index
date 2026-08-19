@@ -17,6 +17,10 @@ import type { ProviderData } from '../data/types';
 import type { ProviderEstimate, UserInputs } from '../types';
 import { roundDollars, totalFilingsPerYear } from '../helpers';
 
+// Slugs are legacy and no longer match Numeral's plan names. Numeral renamed
+// its tiers to Monitoring / Professional / Enterprise (verified 2026-08-18);
+// 'free' -> Monitoring, 'standard' -> Professional, 'pro' -> Enterprise. Slugs
+// kept for data continuity so historical comparisons don't break.
 function pickPlanSlug(inputs: UserInputs): 'free' | 'standard' | 'pro' {
   if (
     inputs.requiresApiAccess ||

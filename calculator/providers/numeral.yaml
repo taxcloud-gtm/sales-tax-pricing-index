@@ -28,7 +28,7 @@ provider:
 
 transparency:
   tier: partial
-  rationale: "Free tier and Standard plan have fully published per-event pricing ($75/filing, $150/registration). Pro plan is custom-quoted with no published pricing. Third-party reports suggest Pro pricing structured as % of revenue + fixed fee for non-standard integrations."
+  rationale: "Monitoring and Professional have fully published per-event pricing ($75/filing, $150/registration). Enterprise is custom-quoted with no published pricing. Third-party reports suggest Enterprise pricing is structured as a percentage of revenue plus a fixed fee, but that is secondary sourcing and does not appear on Numeral's page."
   pricing_page_has_dollar_amounts: true
   quote_required_for_core_product: false  # Standard plan is self-serve and fully priced
   publishes_filing_fees: true
@@ -45,7 +45,7 @@ pricing_model:
   predictability_notes: "Standard plan is fully predictable, exact cost = (filings * $75) + (registrations * $150). Free tier has no cost. Pro tier predictability drops because the model is custom and may include revenue-based components."
 
 plans:
-  - name: "Free (Monitoring)"
+  - name: "Monitoring"
     slug: "free"
     tagline: "Base plan: nexus monitoring and exposure auditing"
     target_customer: "Pre-compliance businesses wanting visibility before committing to paid filing"
@@ -93,7 +93,7 @@ plans:
       vda_support: false
       international_vat_gst: false
 
-  - name: "Standard"
+  - name: "Professional"
     slug: "standard"
     tagline: "Per-event pricing for filing and registration. No subscription fee."
     target_customer: "Established and growing businesses needing on-demand filing without subscription commitment"
@@ -141,7 +141,7 @@ plans:
       vda_support: false  # VDA support is Pro-tier
       international_vat_gst: false
 
-  - name: "Pro"
+  - name: "Enterprise"
     slug: "pro"
     tagline: "End-to-end platform with advanced features and integrations"
     target_customer: "Larger businesses needing API access, VDA support, exemption certificate management, or international coverage"
@@ -324,6 +324,10 @@ sources:
       - customer_count_2000_plus
 
 change_log:
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "Numeral renamed its plans. The live pricing page uses Monitoring, Professional and Enterprise; the Free / Standard / Pro names recorded here appear nowhere on it. No price changed: the free monitoring tier, $75 per filing and $150 per state registration are all unchanged, and the top tier is still quote-only. Two published details we were missing are now captured: exemption certificate management is free for the first 50 certificates, and international VAT/GST coverage across 70+ countries plus tax-engine API access are Enterprise-gated at custom pricing. Note that third-party write-ups, including one updated 2026-07-09, still use the old Standard and Pro labels, so the rename looks recent."
+    source: "https://www.numeral.com/pricing"
   - date: 2025-09-18
     change_type: structure_change
     description: "Series B $35M raise led by Mayfield at $350M valuation. No direct pricing change reported but expansion capital signals potential repricing or new product introduction."

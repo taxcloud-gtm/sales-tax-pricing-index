@@ -36,7 +36,7 @@ provider:
 
 transparency:
   tier: opaque
-  rationale: "Free tier fully published. U.S. Plan and Global Plan are quote-only, no subscription, filing, or registration dollar amounts visible on the pricing page. Zamp's stated rationale: 'flat per-state or per-filing pricing often hides risk.'"
+  rationale: "Free tier fully published. The two paid tiers, now named U.S. and U.S. + Canada, are quote-only with no subscription, filing, or registration dollar amounts visible on the pricing page. Zamp's stated rationale: 'flat per-state or per-filing pricing often hides risk.'"
   pricing_page_has_dollar_amounts: false  # Only the Free tier is "complimentary"; no dollar amounts on paid plans
   quote_required_for_core_product: true
   publishes_filing_fees: false
@@ -101,7 +101,7 @@ plans:
       vda_support: false
       international_vat_gst: false
 
-  - name: "U.S. Plan"
+  - name: "U.S."
     slug: "us"
     tagline: "Audit-ready compliance for scaling teams, bundled filings, registrations, and expert support"
     target_customer: "Mid-market ecommerce and SaaS scaling their US footprint; want fully managed compliance"
@@ -141,7 +141,7 @@ plans:
       vda_support: true
       international_vat_gst: false
 
-  - name: "Global Plan"
+  - name: "U.S. + Canada"
     slug: "global"
     tagline: "Enterprise-grade global compliance, US sales tax plus international VAT/GST"
     target_customer: "Mid-market to enterprise selling internationally; needs unified US + international compliance"
@@ -229,7 +229,7 @@ add_ons:
     source: "https://zamp.com/pricing"
     confidence: B
   audit_support:
-    included_in_plan: "U.S. Plan"
+    included_in_plan: "U.S."
     additional_cost: null
     hours_included: null
     source: "https://zamp.com/pricing"
@@ -257,7 +257,7 @@ international:
   supports_vat: true
   supports_gst: true
   countries_covered: 70  # Per Zamp's pricing page positioning
-  pricing_model_international: "International coverage included on the Global plan only. U.S. Plan customers must upgrade to add international jurisdictions."
+  pricing_model_international: "Canadian coverage is included on the U.S. + Canada plan only. Worth flagging a gap between Zamp's marketing and what it actually sells: its 2026 funding coverage claims expansion to the EU, UK, Australia, New Zealand and 100+ countries, but the pricing page offers no plan beyond U.S. + Canada."
   source: "https://zamp.com/pricing"
 
 discounts:
@@ -321,6 +321,10 @@ sources:
       - pricing_perception
 
 change_log:
+  - date: 2026-08-18
+    change_type: structure_change
+    description: "Zamp renamed its third tier from 'Global Plan' to 'U.S. + Canada', which narrows the published scope: there is no globally-scoped plan purchasable on the pricing page. Still no dollar amounts for either paid tier, so both range estimates stay at their existing confidence (C for U.S., G for the Canada tier) and remain estimates rather than quotes. No new buyer data surfaced to tighten them: Vendr carries no ACV data for Zamp, G2 records that Zamp has not listed pricing, and checkthat.ai returns 404. Corporate event added: Zamp raised new funding in late April 2026, reported as $17M new by Axios and as $30M total led by Acrew Capital with Thomson Reuters Ventures participating by fintech.global. The two figures could not be reconciled, so neither is published as fact here. Zamp also launched 'Zamp OS' positioning and an accounting-firm channel."
+    source: "https://zamp.com/pricing"
   - date: 2026-05-12
     change_type: new_plan
     description: "Initial addition of Zamp to the tracked provider set. Free tier captured from Zamp's published pricing page (confidence A). U.S. Plan and Global Plan ranges estimated from aggregator commentary and third-party comparison pages, neither tier has published dollar amounts on Zamp's site."
@@ -333,7 +337,9 @@ calculator:
     - statesFiling
     - requiresInternationalVatGst
   cost_formula_notes: |
-    1. If requiresInternationalVatGst: pick Global Plan; else U.S. Plan.
+    1. If requiresInternationalVatGst: pick the U.S. + Canada plan; else U.S.
+       (Note: Zamp sells no globally-scoped plan, so buyers needing coverage
+       beyond Canada have no Zamp plan to buy at all.)
     2. Return a range, never a point estimate (Zamp is opaque per-tier).
     3. Within plan, scale range bounds by buyer segment (revenue + state footprint):
        - startup (<$1M revenue, <5 states): range floor
@@ -360,11 +366,18 @@ notes: |
     mostly about price transparency (Numeral publishes Standard, Zamp does
     not publish any paid tier).
   - vs. TaxJar: TaxJar is self-service software at $39+/mo; Zamp is managed
-    service starting at ~$199/mo. Different product categories.
+    service starting at ~$199/mo (aggregator-reported, not published).
+    Different product categories.
+  - Marketing vs. what is actually purchasable: Zamp's 2026 funding coverage
+    claims expansion to the EU, UK, Australia, New Zealand and 100+ countries,
+    but its pricing page sells only U.S. and U.S. + Canada. Worth noting
+    wherever international coverage is compared.
 
   Open research items:
-  - Confirm specific entry-tier price for U.S. Plan. $199/mo is reported by
-    multiple aggregators but not directly cited by Zamp.
+  - Confirm specific entry-tier price for the U.S. plan. $199/mo is reported by
+    multiple aggregators but not directly cited by Zamp. Re-checked 2026-08-18:
+    Vendr carries no ACV data for Zamp, G2 records that Zamp has not listed
+    pricing, and checkthat.ai 404s. No way to tighten this yet.
   - Capture mid-market and enterprise pricing ranges from G2 buyer reports
     (full text, requires G2 review access via the G2 MCP).
   - Verify renewal behavior, is the bundle price held flat year-over-year,

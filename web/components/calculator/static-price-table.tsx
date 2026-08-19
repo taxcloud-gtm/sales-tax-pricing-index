@@ -79,7 +79,10 @@ export function StaticPriceTable({ providers }: { providers: Map<string, Provide
         </table>
       </div>
       <p className="text-xs text-ink-subtle mt-3">
-        Opaque vendors (Avalara, Zamp) shown as observed ranges from buyer data.{' '}
+        Zamp is quote-only and shown as an observed range from buyer data. Avalara
+        publishes per-state list pricing below $50M in revenue on a limited set of
+        non-ERP integrations, shown here as a floor; above that, or on any ERP, it is
+        quote-only and shown as an observed range.{' '}
         <Link href="/methodology" className="no-underline hover:text-accent">
           Methodology
         </Link>{' '}

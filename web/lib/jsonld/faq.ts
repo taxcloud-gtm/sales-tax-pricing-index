@@ -56,7 +56,7 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
     out.push({
       q: `Is ${name} SST certified?`,
       a: p.sst.is_csp
-        ? `Yes. ${name} is a Certified Service Provider in the Streamlined Sales Tax (SST) Program${p.sst.sst_member_states_covered_free ? `. That means free filings in up to ${p.sst.sst_member_states_covered_free} SST member states for customers who qualify (no physical nexus in those states, enrolled in SST)` : ''}.`
+        ? `Yes. ${name} is a Certified Service Provider in the Streamlined Sales Tax (SST) Program${p.sst.sst_member_states_covered_free ? `. That means free filings in all ${p.sst.sst_member_states_covered_free} SST member states for customers who qualify (no physical nexus in those states, enrolled in SST)` : ''}.`
         : `No. ${name} isn't an SST Certified Service Provider, so you won't get free filings in SST member states with ${name}.`,
     });
   }
