@@ -511,7 +511,7 @@ commitments:
 sources:
   - url: "https://www.taxjar.com/pricing"
     title: "TaxJar Pricing"
-    accessed_date: 2026-05-12
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans
@@ -532,7 +532,7 @@ sources:
 
   - url: "https://support.taxjar.com/article/139-how-much-does-taxjar-cost"
     title: "How much does TaxJar cost?, TaxJar Support"
-    accessed_date: 2026-05-11
+    accessed_date: 2026-08-18
     confidence: B
     fields_supported:
       - filings.base_cost
