@@ -41,7 +41,21 @@ function priceLabel(pp: PlanPrice | null): string {
   return `${name} ${verb} ${money(pp.amount)}/month${annualSuffix}`;
 }
 
-export function pairSummary(a: ProviderData, b: ProviderData): string {
+export interface PairSummaryOptions {
+  /**
+   * Prefix with "How does A pricing compare to B?". True for page prose and
+   * meta descriptions. FALSE for the FAQ answer, where that string is already
+   * the entry's `q` and repeating it stutters on all 28 comparison pages.
+   */
+  includeQuestion?: boolean;
+}
+
+export function pairSummary(
+  a: ProviderData,
+  b: ProviderData,
+  opts: PairSummaryOptions = {},
+): string {
+  const { includeQuestion = true } = opts;
   const ap = cheapestPaidPrice(a);
   const bp = cheapestPaidPrice(b);
   const aName = a.provider.name;
@@ -88,7 +102,7 @@ export function pairSummary(a: ProviderData, b: ProviderData): string {
     }
   }
 
-  return [opening, intro, ...extras].filter(Boolean).join(' ');
+  return [includeQuestion ? opening : null, intro, ...extras].filter(Boolean).join(' ');
 }
 
 /**

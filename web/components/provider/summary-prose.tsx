@@ -9,7 +9,9 @@ export function SummaryProse({ provider }: { provider: ProviderData }) {
   return (
     <section className="my-8 max-w-prose">
       <p className="text-lg leading-relaxed text-ink">
-        {howMuchDoesXCost(provider)}
+        {/* includeTypical: false — the TL;DR block above already carries the
+            mid-market sentence verbatim; repeating it read as a template bug. */}
+        {howMuchDoesXCost(provider, { includeTypical: false })}
       </p>
     </section>
   );

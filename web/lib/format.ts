@@ -7,6 +7,17 @@ const usd = new Intl.NumberFormat('en-US', {
   maximumFractionDigits: 0,
 });
 
+/**
+ * Ensure a fragment ends with exactly one terminal period. Authored fields
+ * (plan taglines, target_icp) are written as complete sentences and already
+ * end in ".", so templates that appended their own produced artifacts like
+ * "…order volume.." and "…small and predictable..".
+ */
+export function terminate(s: string): string {
+  const t = s.trim();
+  return /[.!?]$/.test(t) ? t : t + '.';
+}
+
 export function money(n: number): string {
   return usd.format(n);
 }

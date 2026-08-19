@@ -2,6 +2,7 @@ import type { ProviderData } from '../../../calculator/src/data/types';
 import { calculate } from '@/lib/calc-client';
 import { getProvidersMap } from '@/lib/data/providers';
 import { renderEstimate } from '@/lib/format';
+import { providerPath } from '@/lib/slugs';
 import { SCENARIOS, buildScenarioInputs } from '@/lib/scenarios';
 
 export function ExampleScenarios({ a, b }: { a: ProviderData; b: ProviderData }) {
@@ -43,6 +44,26 @@ export function ExampleScenarios({ a, b }: { a: ProviderData; b: ProviderData })
                       <p className="font-mono text-sm font-semibold text-ink whitespace-nowrap">
                         {renderEstimate(r.estimate)}
                       </p>
+                      {/* Lead caveat only. Each calculator orders caveats with
+                          the most decision-relevant one first (past the
+                          published ladder, list-price-not-quote, region cap).
+                          The full set lives on the provider page; showing all
+                          of them for both providers here would bury the
+                          comparison, but shipping the number with none at all
+                          is how an unqualified figure gets quoted. */}
+                      {r.caveats && r.caveats.length > 0 && (
+                        <p className="col-span-2 text-xs text-ink-subtle leading-snug -mt-1">
+                          {r.caveats[0]}{' '}
+                          {r.caveats.length > 1 && (
+                            <a
+                              href={providerPath(r.slug)}
+                              className="no-underline hover:text-accent whitespace-nowrap"
+                            >
+                              +{r.caveats.length - 1} more
+                            </a>
+                          )}
+                        </p>
+                      )}
                     </div>
                   ) : null,
                 )}
