@@ -306,7 +306,7 @@ commitments:
 sources:
   - url: "https://www.trykintsugi.com/pricing"
     title: "Kintsugi Pricing | Sales Tax Automation Plans"
-    accessed_date: 2026-05-11
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans

@@ -297,7 +297,7 @@ commitments:
 sources:
   - url: "https://www.numeral.com/pricing"
     title: "Numeral Pricing: Compare Prices by Plan"
-    accessed_date: 2026-05-11
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans

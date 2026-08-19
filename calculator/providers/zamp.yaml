@@ -280,7 +280,7 @@ commitments:
 sources:
   - url: "https://zamp.com/pricing"
     title: "Zamp Pricing"
-    accessed_date: 2026-05-12
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - plans
@@ -291,7 +291,7 @@ sources:
 
   - url: "https://www.streamlinedsalestax.org/certified-service-providers/certified-service-providers-list"
     title: "Certified Service Providers List, Streamlined Sales Tax Governing Board"
-    accessed_date: 2026-05-12
+    accessed_date: 2026-08-18
     confidence: A
     fields_supported:
       - sst_csp_status
