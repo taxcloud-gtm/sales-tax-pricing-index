@@ -19,16 +19,36 @@ import { getProvidersMap } from './data/providers';
  * it puts a real-world dollar figure into the first paragraph, so LLMs that
  * cite the opening summary surface that number rather than just the entry tier.
  */
-export function howMuchDoesXCost(p: ProviderData): string {
+export interface SummaryOptions {
+  /**
+   * Prefix the prose with "How much does X cost?". True for page prose and
+   * meta descriptions, where the question-led opening is the point. FALSE for
+   * FAQ answers, where the question is already the entry's `q` field and
+   * repeating it produces "How much does X cost? How much does X cost? ...".
+   */
+  includeQuestion?: boolean;
+  /**
+   * Include the typical mid-market sentence. False on provider pages, where
+   * the TL;DR block directly above already carries that exact sentence.
+   */
+  includeTypical?: boolean;
+}
+
+export function howMuchDoesXCost(p: ProviderData, opts: SummaryOptions = {}): string {
+  const { includeQuestion = true, includeTypical = true } = opts;
+  const question = `How much does ${p.provider.name} cost?`;
+
   if (p.transparency.tier === 'opaque') {
-    return opaqueSummary(p);
+    const body = opaqueSummary(p, includeTypical);
+    return includeQuestion ? `${question} ${body}` : body;
   }
 
   const lede = paidPlanLede(p);
   const fees = feesSentence(p);
-  const typical = typicalMidMarketSentence(p);
+  const typical = includeTypical ? typicalMidMarketSentence(p) : null;
   const caveat = transparencyCaveat(p);
-  return [lede, fees, typical, caveat].filter(Boolean).join(' ');
+  const body = [lede, fees, typical, caveat].filter(Boolean).join(' ');
+  return includeQuestion ? `${question} ${body}` : body;
 }
 
 /**
@@ -58,7 +78,7 @@ export function typicalMidMarketSentence(p: ProviderData): string | null {
   }
 }
 
-function opaqueSummary(p: ProviderData): string {
+function opaqueSummary(p: ProviderData, includeTypical = true): string {
   const name = p.provider.name;
   const ranges = p.plans
     .map((pl) => pl.monthly_price)
@@ -73,10 +93,10 @@ function opaqueSummary(p: ProviderData): string {
       ? `Real buyer contracts pulled from third-party aggregators like Vendr and G2 run roughly ${annualLo}–${annualHi} per year, depending on transaction volume, jurisdictions, and how many add-on products end up in the bundle. `
       : `Real buyer contracts vary widely depending on transaction volume, jurisdictions, and add-on products. `;
 
-  const typical = typicalMidMarketSentence(p);
+  const typical = includeTypical ? typicalMidMarketSentence(p) : null;
 
   return [
-    `How much does ${name} cost? You won't find out from ${name}'s pricing page. The core product is quote-only.`,
+    `You won't find out from ${name}'s pricing page. The core product is quote-only.`,
     range.trim(),
     typical,
     `We won't fake a point estimate. If you want a real number, you'll need to sit through a sales call.`,
@@ -100,12 +120,12 @@ function paidPlanLede(p: ProviderData): string {
   }
   const include = planIncludesPhrase(cheapest);
   if (price === 0) {
-    return `How much does ${name} cost? The ${cheapest.name} plan has no monthly subscription fee${include ? `, ${include}` : ''}. Cost is driven by per-event pricing instead.`;
+    return `The ${cheapest.name} plan has no monthly subscription fee${include ? `, ${include}` : ''}. Cost is driven by per-event pricing instead.`;
   }
   const prefix = cheapest.monthly_price.type === 'starting_at' ? 'starts at' : 'is';
   const annual = entryAnnualPrice(cheapest);
   const annualPhrase = annual != null ? ` (${money(annual)}/year)` : '';
-  return `How much does ${name} cost? The ${cheapest.name} plan ${prefix} ${money(price)}/month${annualPhrase}${include ? `, ${include}` : ''}.`;
+  return `The ${cheapest.name} plan ${prefix} ${money(price)}/month${annualPhrase}${include ? `, ${include}` : ''}.`;
 }
 
 function planIncludesPhrase(plan: ProviderData['plans'][number]): string | null {

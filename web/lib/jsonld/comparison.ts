@@ -1,7 +1,7 @@
 import type { ProviderData } from '../../../calculator/src/data/types';
 import { productJsonLd } from './product';
 import { pairSummary, whichIsCheaper } from '../comparison-summary';
-import { money } from '../format';
+import { money, terminate } from '../format';
 import { absoluteUrl } from '../utils';
 import { pairPath } from '../slugs';
 
@@ -17,7 +17,8 @@ export function pairFaqEntries(a: ProviderData, b: ProviderData): PairFaqEntry[]
 
   entries.push({
     q: `How does ${aName} pricing compare to ${bName}?`,
-    a: pairSummary(a, b),
+    // includeQuestion: false — the question is this entry's `q`.
+    a: pairSummary(a, b, { includeQuestion: false }),
   });
 
   entries.push({
@@ -74,7 +75,7 @@ export function pairFaqEntries(a: ProviderData, b: ProviderData): PairFaqEntry[]
   // Target-customer fit — always answerable
   entries.push({
     q: `Who is each one built for?`,
-    a: `${aName} targets ${a.provider.target_icp ?? 'a broad customer base'}. ${bName} targets ${b.provider.target_icp ?? 'a broad customer base'}. The fit question matters more than the price one. Buy the product that actually covers your situation.`,
+    a: `${aName} targets ${terminate(a.provider.target_icp ?? 'a broad customer base')} ${bName} targets ${terminate(b.provider.target_icp ?? 'a broad customer base')} The fit question matters more than the price one. Buy the product that actually covers your situation.`,
   });
 
   // Transparency

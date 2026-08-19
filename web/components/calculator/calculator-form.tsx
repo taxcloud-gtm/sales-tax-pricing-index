@@ -96,14 +96,31 @@ export function CalculatorForm({ providersJson }: { providersJson: Record<string
     () => buildUserInputs(form, sstStates.size),
     [form, sstStates],
   );
+  // Has the buyer actually described a business yet? With every quantity at
+  // zero the math is real but meaningless: providers with no fixed platform fee
+  // come out at $0/year and rank above providers that charge a subscription.
+  //
+  // That zero state used to be server-rendered, so crawlers were served
+  // "#1 Numeral - $0 per year" directly contradicting the static all-provider
+  // table 400px above it on the same page. A model reading a document that
+  // disagrees with itself discounts the whole document. Gate the ranking on
+  // real input; the static table above is the crawlable, correct artifact.
+  const hasInput =
+    form.annualOrders > 0 ||
+    form.statesFiling > 0 ||
+    form.annualRevenueUSD > 0 ||
+    form.annualFilings > 0 ||
+    form.registrationBacklog > 0;
+
   const results = useMemo(() => {
+    if (!hasInput) return [];
     try {
       return calculate(effectiveInputs, providersMap);
     } catch (e) {
       console.error('calculator error', e);
       return [];
     }
-  }, [effectiveInputs, providersMap]);
+  }, [hasInput, effectiveInputs, providersMap]);
 
   const set = <K extends keyof FormState>(k: K, v: FormState[K]) =>
     setForm((p) => ({ ...p, [k]: v }));
@@ -181,7 +198,19 @@ export function CalculatorForm({ providersJson }: { providersJson: Record<string
           <h2 className="font-serif text-xl font-semibold">Estimated annual cost</h2>
           <p className="text-xs text-ink-subtle small-caps">Cheapest first</p>
         </div>
-        {results.length === 0 && (
+        {!hasInput && (
+          <div className="rounded border border-rule p-6">
+            <p className="text-ink-muted">
+              Enter your order volume and filing states to rank all eight providers for
+              your business.
+            </p>
+            <p className="text-ink-subtle mt-3 text-sm">
+              Not sure yet? The table above shows what each provider costs for two
+              typical ecommerce profiles.
+            </p>
+          </div>
+        )}
+        {hasInput && results.length === 0 && (
           <p className="text-ink-subtle">Couldn&apos;t compute estimates. Check the console.</p>
         )}
         {results.map((r, i) => (

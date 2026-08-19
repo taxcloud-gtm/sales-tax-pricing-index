@@ -75,6 +75,26 @@ export function ProviderExampleScenarios({ provider }: { provider: ProviderData 
                   )}
                 </dl>
               )}
+
+              {/* Caveats travel with the number. These used to render only in
+                  the calculator's own provider cards, so the figure most likely
+                  to be quoted (this one) appeared with no qualification at all
+                  on the page most likely to be cited. */}
+              {result.caveats && result.caveats.length > 0 && (
+                <div className="mt-5 pt-4 rule-top">
+                  <p className="small-caps text-[11px] text-ink-subtle mb-2">
+                    What this estimate assumes
+                  </p>
+                  <ul className="space-y-1.5 text-xs text-ink-muted leading-snug">
+                    {result.caveats.map((c, i) => (
+                      <li key={i} className="flex gap-2">
+                        <span aria-hidden className="text-ink-subtle">&middot;</span>
+                        <span>{c}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
             </div>
           );
         })}

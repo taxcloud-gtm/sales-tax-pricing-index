@@ -1,6 +1,6 @@
 import type { ProviderData } from '../../../calculator/src/data/types';
 import { howMuchDoesXCost } from '../summary';
-import { money, renderEstimate } from '../format';
+import { money, renderEstimate, terminate } from '../format';
 import { SCENARIOS, buildScenarioInputs } from '../scenarios';
 import { calculate } from '../calc-client';
 import { getProvidersMap } from '../data/providers';
@@ -20,7 +20,9 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
   const out: FaqEntry[] = [];
 
   // 1. How much does X cost, answered with the summary prose
-  out.push({ q: `How much does ${name} cost?`, a: howMuchDoesXCost(p) });
+  // includeQuestion: false — the question is this entry's `q`; repeating it
+  // inside acceptedAnswer.text produced a visible stutter on every page.
+  out.push({ q: `How much does ${name} cost?`, a: howMuchDoesXCost(p, { includeQuestion: false }) });
 
   // 2. Cheapest plan
   const cheapest = cheapestPaid(p);
@@ -29,8 +31,8 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
       q: `What is the cheapest ${name} plan?`,
       a: cheapest.amount != null
         ? cheapest.amount === 0
-          ? `${cheapest.name} has no monthly subscription fee. You pay per event instead.${cheapest.tagline ? ' ' + cheapest.tagline + '.' : ''}`
-          : `${cheapest.name} at ${money(cheapest.amount)}/month.${cheapest.tagline ? ' ' + cheapest.tagline + '.' : ''}`
+          ? `${cheapest.name} has no monthly subscription fee. You pay per event instead.${cheapest.tagline ? ' ' + terminate(cheapest.tagline) : ''}`
+          : `${cheapest.name} at ${money(cheapest.amount)}/month.${cheapest.tagline ? ' ' + terminate(cheapest.tagline) : ''}`
         : `The cheapest published plan is ${cheapest.name}. You'll need a quote for the actual price.`,
     });
   }
@@ -38,12 +40,33 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
   // 3. Per-filing fees
   if (p.filings?.has_per_filing_fee) {
     const cost = p.filings.base_cost?.amount;
-    out.push({
-      q: `Does ${name} charge per filing?`,
-      a: cost != null
-        ? `Yes. ${money(cost)} per state filing, on top of subscription.${p.filings.notes ? ' ' + truncate(p.filings.notes, 200) : ''}`
-        : `Yes. ${name} charges a per-filing fee on top of subscription, but doesn't publish the amount.`,
-    });
+    // Previously this appended `truncate(p.filings.notes, 200)`, which shipped
+    // answers cut off mid-sentence with an ellipsis and, on providers that sell
+    // filings as a subscription, an answer that contradicted its own first
+    // sentence. Build the answer from structured data instead.
+    const tiers = p.filings.tier_pricing ?? [];
+    if (tiers.length > 0) {
+      const lo = tiers[0];
+      const hi = tiers[tiers.length - 1];
+      const loEach = Math.round(lo.annual_price / lo.filings);
+      const hiEach = Math.round(hi.annual_price / hi.filings);
+      out.push({
+        q: `Does ${name} charge per filing?`,
+        a:
+          `Filings are normally bought as a tiered annual subscription rather than charged per filing. ` +
+          `Tiers run from ${money(lo.annual_price)}/year for ${lo.filings} filings to ` +
+          `${money(hi.annual_price)}/year for ${hi.filings}, so the effective rate falls from about ` +
+          `${money(loEach)} to ${money(hiEach)} per filing as volume rises.` +
+          (cost != null ? ` Without a filing subscription, pay-as-you-go is ${money(cost)} per filing.` : ''),
+      });
+    } else {
+      out.push({
+        q: `Does ${name} charge per filing?`,
+        a: cost != null
+          ? `Yes. ${money(cost)} per state filing, on top of subscription.`
+          : `Yes. ${name} charges a per-filing fee on top of subscription, but doesn't publish the amount.`,
+      });
+    }
   } else {
     out.push({
       q: `Does ${name} charge per filing?`,
@@ -67,7 +90,7 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
   if (freePlan) {
     out.push({
       q: `Does ${name} have a free plan?`,
-      a: `Yes. ${name} has a ${freePlan.name} plan${freePlan.tagline ? `: ${freePlan.tagline.toLowerCase()}` : ''}.`,
+      a: terminate(`Yes. ${name} has a ${freePlan.name} plan${freePlan.tagline ? `: ${freePlan.tagline.toLowerCase()}` : ''}`),
     });
   } else if (trial?.has_trial) {
     out.push({
@@ -88,7 +111,7 @@ export function faqEntries(p: ProviderData): FaqEntry[] {
       out.push({
         q: `Does ${name} support international VAT and GST?`,
         a: intl.countries_covered
-          ? `Yes. ${name} covers ${intl.countries_covered}+ countries.${intl.pricing_model_international ? ' ' + truncate(intl.pricing_model_international, 200) : ''}`
+          ? `Yes. ${name} covers ${intl.countries_covered}+ countries.${includeIfShort(intl.pricing_model_international)}`
           : `Yes. ${name} supports international VAT and GST alongside US sales tax.`,
       });
     } else {
@@ -161,7 +184,19 @@ function describeScalesWith(p: ProviderData): string {
   return (p.pricing_model?.scales_with ?? []).slice(0, 3).join(', ');
 }
 
-function truncate(s: string, n: number): string {
-  if (s.length <= n) return s;
-  return s.slice(0, n - 1).replace(/\s+\S*$/, '') + '…';
+/**
+ * Ensure a fragment ends with exactly one terminal period. Plan taglines are
+ * authored as full sentences and already end in ".", so templates that
+ * appended their own produced "…order volume..".
+ */
+/**
+ * Include an authored note only if it fits whole. Never truncate: a note cut
+ * off mid-sentence with an ellipsis is worse than no note, and these fields
+ * carry internal research prose that can run to several hundred words.
+ */
+function includeIfShort(s: string | null | undefined, n = 200): string {
+  if (!s) return '';
+  const t = s.trim();
+  return t.length <= n ? ' ' + terminate(t) : '';
 }
+

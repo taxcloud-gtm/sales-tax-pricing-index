@@ -1,4 +1,5 @@
 import type { ProviderData } from '../../../calculator/src/data/types';
+import { terminate } from '../format';
 import { absoluteUrl } from '../utils';
 import { providerPath } from '../slugs';
 
@@ -49,7 +50,7 @@ export function productJsonLd(p: ProviderData) {
           '@type': 'Offer',
           name: `${pl.name} — up to ${annualEquivalent.toLocaleString()} orders/year`,
           description:
-            (pl.tagline ? `${pl.tagline}. ` : '') +
+            (pl.tagline ? `${terminate(pl.tagline)} ` : '') +
             `Tier covers up to ${tier.included_orders.toLocaleString()} orders/month ` +
             `(${annualEquivalent.toLocaleString()} orders/year).`,
           price: String(tier.monthly_price),
