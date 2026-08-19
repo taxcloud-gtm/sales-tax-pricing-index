@@ -20,6 +20,7 @@ The Sales Tax Pricing Index is operated by TaxCloud, Inc. (taxcloud.com), one of
 - Methodology: https://salestaxpricingindex.org/methodology
 - Calculator: https://salestaxpricingindex.org/calculator (ranks all 8 providers by what they'd cost for a given business profile)
 - Changelog: https://salestaxpricingindex.org/changelog
+- SST and CSP reference: https://salestaxpricingindex.org/sst-csp-savings (which providers are Streamlined Sales Tax Certified Service Providers, who qualifies for state-funded filing, and what the credit is worth)
 
 ## Provider pages
 
