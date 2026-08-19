@@ -16,7 +16,17 @@ import { SCENARIOS, buildScenarioInputs } from '@/lib/scenarios';
 import { providerPath } from '@/lib/slugs';
 import Link from 'next/link';
 
-export function StaticPriceTable({ providers }: { providers: Map<string, ProviderData> }) {
+export function StaticPriceTable({
+  providers,
+  heading = 'All-provider pricing at a glance',
+  lead,
+}: {
+  providers: Map<string, ProviderData>;
+  /** Query-matched heading. The homepage passes a buyer question. */
+  heading?: string;
+  /** Replaces the default intro. Used for the homepage's liftable answer. */
+  lead?: React.ReactNode;
+}) {
   const rows = SCENARIOS.map((scenario) => {
     const results = calculate(buildScenarioInputs(scenario), providers);
     return { scenario, results };
@@ -27,13 +37,15 @@ export function StaticPriceTable({ providers }: { providers: Map<string, Provide
 
   return (
     <section className="my-10">
-      <h2 className="text-subhed mb-2">All-provider pricing at a glance</h2>
-      <p className="text-ink-muted text-sm max-w-prose mb-6">
-        Estimated annual cost for two representative ecommerce profiles, ranked
-        cheapest to most expensive. Both assume Shopify integration, monthly
-        filing cadence, and annual billing. SST savings applied where eligible.
-        Adjust for your numbers using the calculator below.
-      </p>
+      <h2 className="text-subhed mb-2">{heading}</h2>
+      {lead ?? (
+        <p className="text-ink-muted text-sm max-w-prose mb-6">
+          Estimated annual cost for two representative ecommerce profiles, ranked
+          cheapest to most expensive. Both assume Shopify integration, monthly
+          filing cadence, and annual billing. SST savings applied where eligible.
+          Adjust for your numbers using the calculator below.
+        </p>
+      )}
 
       <div className="overflow-x-auto">
         <table className="w-full text-sm border-collapse">

@@ -14,6 +14,7 @@ export function Header() {
         </Link>
         <nav className="flex items-center gap-5 sm:gap-6 text-sm font-medium">
           <Link href="/calculator" className="text-ink-muted hover:text-ink no-underline">Calculator</Link>
+          <Link href="/sst-csp-savings" className="text-ink-muted hover:text-ink no-underline">SST &amp; CSP</Link>
           <Link href="/methodology" className="text-ink-muted hover:text-ink no-underline">Methodology</Link>
           <Link href="/changelog" className="text-ink-muted hover:text-ink no-underline">Changelog</Link>
         </nav>

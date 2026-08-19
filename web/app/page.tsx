@@ -1,9 +1,19 @@
+import type { Metadata } from 'next';
 import Link from 'next/link';
-import { getAllProviders } from '@/lib/data/providers';
+import { getAllProviders, getProvidersMap } from '@/lib/data/providers';
+import { StaticPriceTable } from '@/components/calculator/static-price-table';
+import { midMarketSpread, costSpreadSentence, costSpreadItemListJsonLd } from '@/lib/cost-spread';
 import { providerPath, pairPath } from '@/lib/slugs';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { datasetJsonLd } from '@/lib/jsonld/dataset';
+
+// The root URL had no canonical and no prices at all. Both fixed below.
+export const metadata: Metadata = {
+  alternates: { canonical: '/' },
+  description:
+    'What sales tax compliance software actually costs, with every price traced to a public source. Ranked annual cost for TaxCloud, Avalara, TaxJar, Numeral, Kintsugi, Anrok, Sphere and Zamp.',
+};
 
 const FEATURED_PAIRS: ReadonlyArray<readonly [string, string]> = [
   ['avalara', 'taxjar'],
@@ -17,8 +27,10 @@ const FEATURED_PAIRS: ReadonlyArray<readonly [string, string]> = [
 
 export default function HomePage() {
   const providers = getAllProviders();
+  const providersMap = getProvidersMap();
   const date = lastUpdatedAcross(providers);
   const dataset = datasetJsonLd(providers);
+  const spread = midMarketSpread(providersMap);
 
   return (
     <>
@@ -26,6 +38,14 @@ export default function HomePage() {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(dataset) }}
       />
+      {spread && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(costSpreadItemListJsonLd(spread)),
+          }}
+        />
+      )}
 
       {/* Hero */}
       <section className="mx-auto max-w-6xl px-6 pt-20 pb-16">
@@ -56,8 +76,45 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* What it costs — the citable answer. This sits directly under the hero
+          because the root URL is the page most likely to be quoted as "the
+          source", and it previously carried no prices and no table at all. */}
+      {spread && (
+        <section className="mx-auto max-w-6xl px-6">
+          <StaticPriceTable
+            providers={providersMap}
+            heading="How much does sales tax compliance software cost?"
+            lead={
+              <>
+                <p className="text-ink text-base leading-relaxed max-w-prose mb-4">
+                  {costSpreadSentence(spread)}
+                </p>
+                <p className="text-ink-muted text-sm max-w-prose mb-6">
+                  Both profiles assume Shopify, monthly filing cadence, and annual
+                  billing. SST savings applied where eligible. Every figure below traces
+                  to a public source.{' '}
+                  <Link href="/calculator" className="no-underline hover:text-accent">
+                    Run your own numbers
+                  </Link>
+                  .
+                </p>
+              </>
+            }
+          />
+        </section>
+      )}
+
       {/* All providers */}
       <section className="mx-auto max-w-6xl px-6 my-16">
+        <p className="text-sm text-ink-muted max-w-prose mb-8">
+          Two of the eight are Certified Service Providers in the Streamlined Sales Tax
+          Program, which means member states pay them directly for filing on behalf of
+          qualifying sellers.{' '}
+          <Link href="/sst-csp-savings" className="text-accent hover:text-accent-hover">
+            What CSP status is worth
+          </Link>
+          .
+        </p>
         <div className="flex items-baseline justify-between mb-6">
           <h2 className="text-subhed">All tracked providers</h2>
           <p className="text-xs text-ink-subtle small-caps">8 providers · sourced pricing</p>
