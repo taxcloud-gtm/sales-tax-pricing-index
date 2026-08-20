@@ -195,6 +195,15 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
         .join('; ')}. Those are not modeled here because the calculator has no per-state input.`,
     );
   }
+  // Published tier pricing is a list price for this provider too. It is
+  // transactable, unlike some competitors' list prices, but a sales-assisted
+  // deal can land below it. Saying so keeps the site from presenting one
+  // vendor's number as firm while flagging everyone else's as a starting
+  // point, which is the asymmetry a publisher is most likely to miss in its
+  // own favour.
+  caveats.push(
+    `This is ${data.provider.name}'s published tier pricing, which is self-serve and transactable at list. A sales-assisted deal can still land below it, so treat the figure as what you would pay without negotiating rather than the floor of what is achievable.`,
+  );
   if (data.calculator.output_caveat) {
     caveats.push(data.calculator.output_caveat);
   }

@@ -75,7 +75,7 @@ export default function CheapestPage() {
     },
     {
       q: 'Does cheapest mean lowest total cost?',
-      a: `Not reliably. The vendors publish very different amounts of pricing, so the rows are not all the same kind of number: some are prices, one is a floor from a published per-state list rate sold only through a sales process, and one is an observed range from public buyer reports because the vendor publishes nothing. Contracts at both of those are negotiated. The ranking on this page is "cheapest by published pricing on a stated profile", which is the only claim the available data supports.`,
+      a: `Not reliably, for two reasons. First, the rows are not all the same kind of number: some are prices you can transact at, one is a floor from a published per-state list rate sold only through a sales process, and one is an observed range from public buyer reports because the vendor publishes nothing at all. Second, every vendor in this set discounts in a sales-assisted deal, the publisher of this site included, so no row is the floor of what that vendor would accept. The ranking here is "cheapest by published pricing on a stated profile", which is the only claim the available data supports.`,
     },
     {
       q: 'What makes one sales tax platform cheaper than another?',
@@ -206,8 +206,14 @@ export default function CheapestPage() {
           <em>published</em> pricing, and the vendors publish very different amounts of it. One is
           quote-only, so its position is an observed range from buyer reports rather than a price.
           One publishes a per-state list rate but sells only through a sales process, so its
-          position is a floor. Both negotiate, and a real contract can land well below a list
-          position. Nothing on this page claims to know what any vendor's negotiated pricing is.
+          position is a floor.
+        </p>
+        <p>
+          And every vendor here, TaxCloud included, discounts in a sales-assisted deal. So no row
+          below is the floor of what that vendor would accept. Read the whole table as what each
+          platform costs a buyer who does not negotiate, which is the only version of the question
+          public pricing can answer. Nothing on this page claims to know what any vendor&apos;s
+          negotiated pricing is, ours or anyone else&apos;s.
         </p>
       </OwnershipNote>
 
