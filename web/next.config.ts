@@ -8,8 +8,13 @@ const config: NextConfig = {
   // Keyword-loaded external URLs map to clean internal route files.
   // External: /anrok-pricing            → app/p/[slug]/page.tsx
   // External: /anrok-vs-taxjar-pricing  → app/c/[pair]/page.tsx
+  // External: /cost-to-switch-from-avalara → app/switch/[slug]/page.tsx
   async rewrites() {
     return [
+      {
+        source: '/cost-to-switch-from-:slug([a-z0-9-]+)',
+        destination: '/switch/:slug',
+      },
       {
         source: '/:slug([a-z0-9-]+-vs-[a-z0-9-]+)-pricing',
         destination: '/c/:slug',
@@ -26,6 +31,7 @@ const config: NextConfig = {
   // so the prettier path doesn't loop back through the redirect.
   async redirects() {
     return [
+      { source: '/switch/:slug', destination: '/cost-to-switch-from-:slug', permanent: true },
       { source: '/p/:slug', destination: '/:slug-pricing', permanent: true },
       { source: '/c/:pair', destination: '/:pair-pricing', permanent: true },
     ];

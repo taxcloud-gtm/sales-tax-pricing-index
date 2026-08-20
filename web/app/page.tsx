@@ -7,6 +7,7 @@ import { providerPath, pairPath } from '@/lib/slugs';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { datasetJsonLd } from '@/lib/jsonld/dataset';
+import { HEAD_TERM_PROFILES } from '@/lib/head-terms/profiles';
 
 // The root URL had no canonical and no prices at all. Both fixed below.
 export const metadata: Metadata = {
@@ -96,6 +97,10 @@ export default function HomePage() {
                   <Link href="/calculator" className="no-underline hover:text-accent">
                     Run your own numbers
                   </Link>
+                  , or read{' '}
+                  <Link href="/how-much-does-sales-tax-software-cost" className="no-underline hover:text-accent">
+                    what drives the difference
+                  </Link>
                   .
                 </p>
               </>
@@ -103,6 +108,48 @@ export default function HomePage() {
           />
         </section>
       )}
+
+      {/* Head-term entry points. These answer the category-level questions the
+          provider and pair pages don't, and they're the pages most likely to be
+          cited for a query that doesn't name a vendor. */}
+      <section className="mx-auto max-w-6xl px-6 my-16">
+        <h2 className="text-subhed mb-6">The questions before you pick a vendor</h2>
+        <ul className="grid sm:grid-cols-2 lg:grid-cols-4 gap-3">
+          <li>
+            <Link href="/how-much-does-sales-tax-software-cost" className="block p-5 card card-hover no-underline h-full">
+              <p className="font-sans font-bold text-ink">How much does it cost?</p>
+              <p className="text-xs text-ink-muted mt-2">
+                The category range across both profiles, and the four pricing models behind the spread
+              </p>
+            </Link>
+          </li>
+          <li>
+            <Link href="/cheapest-sales-tax-software" className="block p-5 card card-hover no-underline h-full">
+              <p className="font-sans font-bold text-ink">Which is cheapest?</p>
+              <p className="text-xs text-ink-muted mt-2">
+                Ranked across {HEAD_TERM_PROFILES.length} buyer profiles, including the ones where
+                the answer changes
+              </p>
+            </Link>
+          </li>
+          <li>
+            <Link href="/sales-tax-software-hidden-fees" className="block p-5 card card-hover no-underline h-full">
+              <p className="font-sans font-bold text-ink">What are the hidden fees?</p>
+              <p className="text-xs text-ink-muted mt-2">
+                Nine fee categories, and which vendors charge something without publishing a number
+              </p>
+            </Link>
+          </li>
+          <li>
+            <Link href="/cost-to-switch-from-avalara" className="block p-5 card card-hover no-underline h-full">
+              <p className="font-sans font-bold text-ink">What does switching cost?</p>
+              <p className="text-xs text-ink-muted mt-2">
+                Run-rate difference, exit terms, and what we refuse to put a number on
+              </p>
+            </Link>
+          </li>
+        </ul>
+      </section>
 
       {/* All providers */}
       <section className="mx-auto max-w-6xl px-6 my-16">

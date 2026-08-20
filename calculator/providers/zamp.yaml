@@ -5,7 +5,7 @@
 #
 # DATA POSTURE
 # Zamp publishes a Free tier in full detail. The two paid tiers (U.S. Plan and
-# Global Plan) are quote-only, no subscription dollar amounts published.
+# U.S. + Canada) are quote-only, no subscription dollar amounts published.
 # Range estimates below come from aggregator buyer data and third-party
 # comparison pages. Like Avalara, Zamp must be displayed as ranges, never
 # as a point estimate.
@@ -84,7 +84,7 @@ plans:
     order_tiers: []
     overage:
       model: upgrade_required
-      description: "Free tier provides one-time analysis only. Ongoing filing or remittance requires the U.S. or Global plan."
+      description: "Free tier provides one-time analysis only. Ongoing filing or remittance requires the U.S. or U.S. + Canada plan."
     included_filings_per_period:
       count: 0
       period: none
@@ -348,7 +348,7 @@ calculator:
        - enterprise ($50M+, 30+ states): range ceiling
     4. Free tier is only returned if the user explicitly indicates they're
        still in the nexus-assessment phase (not modeled in current calculator).
-  output_caveat: "Zamp does not publish dollar pricing for the U.S. or Global plans. Ranges are inferred from aggregator buyer commentary and third-party comparison pages. Actual quote will depend on state footprint, transaction volume, integration complexity, and negotiation. Bundle includes filings, registrations, and notice handling at no additional charge."
+  output_caveat: "Zamp does not publish dollar pricing for the U.S. or U.S. + Canada plans. Ranges are inferred from aggregator buyer commentary and third-party comparison pages. Actual quote will depend on state footprint, transaction volume, integration complexity, and negotiation. Bundle includes filings, registrations, and notice handling at no additional charge."
 
 notes: |
   Zamp is the youngest provider in the tracked set (founded 2022). Their
@@ -382,4 +382,4 @@ notes: |
     (full text, requires G2 review access via the G2 MCP).
   - Verify renewal behavior, is the bundle price held flat year-over-year,
     or does it scale with revenue/volume growth?
-  - Document specific countries covered on the Global plan.
+  - Document specific countries covered on the U.S. + Canada plan.

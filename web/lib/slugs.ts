@@ -35,3 +35,12 @@ export function providerPath(slug: string): string {
 export function pairPath(a: string, b: string): string {
   return `/${pairSlug(a, b)}-pricing`;
 }
+
+/**
+ * External URL for the switching-cost page. The route file lives at
+ * app/switch/[slug] and is rewritten to this path in next.config.ts, the same
+ * pattern the provider and comparison pages use.
+ */
+export function switchPath(slug: string): string {
+  return `/cost-to-switch-from-${slug}`;
+}
