@@ -4,7 +4,6 @@ import { getAllProviders, getProvidersMap } from '@/lib/data/providers';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { Tldr } from '@/components/site/tldr';
-import { OwnershipNote } from '@/components/site/ownership-note';
 import { StaticPriceTable } from '@/components/calculator/static-price-table';
 import { providerPath } from '@/lib/slugs';
 import { money, renderEstimate } from '@/lib/format';
@@ -169,24 +168,6 @@ export default function CostPage() {
           .
         </p>
       </section>
-
-      <OwnershipNote>
-        <p>
-          This site is operated by TaxCloud, one of the {providers.length} platforms priced on it. A
-          page that answers &ldquo;what does this category cost&rdquo; is a page where the publisher
-          has an obvious incentive to shade the numbers, so the numbers are not written by hand.
-          Every figure here comes out of the same calculator that runs on{' '}
-          <Link href="/calculator" className="no-underline hover:text-accent">
-            the calculator page
-          </Link>
-          , from the same provider data, with no separate logic and no editorial override.
-        </p>
-        <p>
-          Where a vendor does not publish a price, this page says so rather than estimating one.
-          Where a figure comes from buyer-reported data instead of a vendor page, it is labelled as
-          a range and not as a price.
-        </p>
-      </OwnershipNote>
 
       {/* Full ranked table for both canonical profiles. */}
       <StaticPriceTable

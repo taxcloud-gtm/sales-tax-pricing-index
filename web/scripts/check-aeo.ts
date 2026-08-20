@@ -154,8 +154,9 @@ function runChecks(): Failure[] {
 
     if (isCategoryPage) {
       if (!hasArticle) failures.push({ path: c.path, reason: 'Missing Article JSON-LD' });
-      // The ownership disclosure is the whole reason these pages are credible.
-      // A silent template regression that drops it should be a red build.
+      // The site-wide footer disclosure. It is the only place the operator
+      // relationship is stated on these pages, so a layout regression that
+      // drops the footer should be a red build rather than a quiet one.
       if (!/operated by TaxCloud/i.test(html)) {
         failures.push({ path: c.path, reason: 'Missing ownership disclosure ("operated by TaxCloud")' });
       }
