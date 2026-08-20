@@ -42,7 +42,8 @@ export function StaticPriceTable({
         <p className="text-ink-muted text-sm max-w-prose mb-6">
           Estimated annual cost for two representative ecommerce profiles, ranked
           cheapest to most expensive. Both assume Shopify integration, monthly
-          filing cadence, and annual billing. SST savings applied where eligible.
+          filing cadence, and annual billing. Returns in SST member states are excluded
+          from the bill where the seller qualifies.
           Adjust for your numbers using the calculator below.
         </p>
       )}

@@ -77,6 +77,37 @@ export function sstEligibleStateCount(inputs: UserInputs): number {
 }
 
 // -----------------------------------------------------------------------------
+// sstFreeFilingsPerYear — how many of the buyer's annual returns are filed in
+// SST-eligible states, and therefore never billed to the seller.
+//
+// This replaces an earlier model that treated the CSP benefit as a dollar
+// credit computed at the provider's pay-as-you-go per-filing rate and then
+// subtracted from a tiered filing subscription. That mixed two pricing bases:
+// the credit was valued at a higher rate than the price it reduced, so it grew
+// faster than the cost it offset. At high SST-state counts it very nearly
+// cancelled the entire filing subscription, and a seller filing in 45 states
+// came out cheaper than one filing in 20.
+//
+// The correct model, confirmed with TaxCloud: returns in SST member states are
+// not charged at all. They are $0 rather than discounted, and they do not
+// consume the seller's filing subscription. So they come out of the filing
+// count BEFORE the tier ladder is walked, and no credit line exists.
+//
+// Derivation: without per-state filing cadence in UserInputs, assume returns
+// are distributed evenly across the seller's filing states, so the SST share of
+// returns equals the SST share of states. That is an assumption, not a fact,
+// and it is the one to revisit when the UI can collect per-state cadence.
+// -----------------------------------------------------------------------------
+export function sstFreeFilingsPerYear(inputs: UserInputs, sstEligibleStates: number): number {
+  if (sstEligibleStates <= 0) return 0;
+  if (inputs.statesFiling <= 0) return 0;
+  const totalFilings = totalFilingsPerYear(inputs);
+  if (totalFilings <= 0) return 0;
+  const share = Math.min(1, sstEligibleStates / inputs.statesFiling);
+  return Math.min(totalFilings, Math.round(totalFilings * share));
+}
+
+// -----------------------------------------------------------------------------
 // applyAnnualDiscount — convert monthly to annual with discount
 // -----------------------------------------------------------------------------
 export function applyAnnualDiscount(

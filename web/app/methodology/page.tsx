@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import Link from 'next/link';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { getAllProviders } from '@/lib/data/providers';
@@ -63,6 +64,16 @@ export default function MethodologyPage() {
             or out of date, send a source URL to{' '}
             <a href="mailto:hello@taxcloud.com">hello@taxcloud.com</a> and we will
             correct or annotate it in the next update.
+          </p>
+          <p className="mt-4">
+            That claim is checkable rather than rhetorical. Every correction this site has
+            published is logged at{' '}
+            <Link href="/corrections" className="no-underline hover:text-accent">
+              /corrections
+            </Link>
+            , dated, with what the page used to say and which direction the error ran in. Several
+            of them were errors that made TaxCloud look better than its own pricing supports,
+            including one that understated TaxCloud&apos;s price by about 35%.
           </p>
         </section>
 

@@ -43,10 +43,12 @@ export function ProviderExampleScenarios({ provider }: { provider: ProviderData 
                   <dd>${Math.round(result.breakdown.subscription).toLocaleString()}</dd>
                   <dt>Filings</dt>
                   <dd>${Math.round(result.breakdown.filings).toLocaleString()}</dd>
-                  {typeof result.breakdown.sstSavings === 'number' && result.breakdown.sstSavings > 0 && (
+                  {typeof result.breakdown.filingsNotCharged === 'number' && result.breakdown.filingsNotCharged > 0 && (
                     <>
-                      <dt className="text-accent">SST savings</dt>
-                      <dd className="text-accent">−${Math.round(result.breakdown.sstSavings).toLocaleString()}</dd>
+                      <dt className="text-accent">SST returns</dt>
+                      <dd className="text-accent">
+                        {result.breakdown.filingsNotCharged} not charged
+                      </dd>
                     </>
                   )}
                   {result.breakdown.transactions > 0 && (

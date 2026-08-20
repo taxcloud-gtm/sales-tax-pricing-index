@@ -139,8 +139,9 @@ export function cheapestAnswerSentence(rankings: Ranking[]): string {
       ? 'one platform comes out cheapest on every one, which is a reason to read the assumptions rather than the ranking'
       : `${winners.length} different platforms come out cheapest depending on the profile (${winners.join(', ')})`}. ` +
     `${anyExcluded ? 'On profiles with a hard requirement, platforms that cannot meet it are removed from the ranking rather than allowed to win on price. ' : ''}` +
-    `Cheapest by list price is also not the same as cheapest available: the vendors that publish least ` +
-    `are the ones that negotiate most, and this site can only compare what is published.`
+    `Cheapest by list price is also not the same as cheapest available. Every vendor here discounts in a ` +
+    `sales-assisted deal, including the one that publishes this site, so every figure is what you would ` +
+    `pay without negotiating rather than the floor of what is achievable.`
   );
 }
 

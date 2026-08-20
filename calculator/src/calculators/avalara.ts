@@ -25,7 +25,7 @@
 
 import type { ProviderData } from '../data/types';
 import type { ProviderEstimate, UserInputs } from '../types';
-import { filingsPerYear, pickBuyerSegment, roundDollars, sstEligibleStateCount, totalFilingsPerYear } from '../helpers';
+import { filingsPerYear, pickBuyerSegment, roundDollars, sstEligibleStateCount, sstFreeFilingsPerYear, totalFilingsPerYear } from '../helpers';
 
 // -----------------------------------------------------------------------------
 // HARDCODED — should migrate to YAML once schema supports per-integration ranges
@@ -294,28 +294,24 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
   // CSP benefit is worth. Per-filing-rate used for the credit is Avalara's
   // published $48 base cost (data.filings.base_cost.amount).
   const totalFilings = totalFilingsPerYear(inputs);
-  // Assume monthly cadence in SST states (12 returns/year/state). Decoupled
-  // from inputs.statesFiling so the SST credit depends only on how many SST
-  // states the buyer has economic nexus in — not on the buyer's total
-  // filing-state footprint.
-  const SST_FILINGS_PER_STATE_PER_YEAR = 12;
+  // Same correction as the TaxCloud calculator: returns in SST member states
+  // are not charged, so they come out of the filing count rather than being
+  // priced and then credited back. The previous version valued the credit at
+  // the published per-filing rate and subtracted it from a per-filing range,
+  // which is a smaller error here than at TaxCloud but the same error.
   const sstEligible = data.sst.is_csp ? sstEligibleStateCount(inputs) : 0;
-  const sstFreeFilings = sstEligible * SST_FILINGS_PER_STATE_PER_YEAR;
-  const perFilingPublished = data.filings.base_cost.amount ?? PER_FILING_RANGE_SPREAD.max;
-  const theoreticalSstSavings = Math.round(sstFreeFilings * perFilingPublished);
+  const freeFilings = sstFreeFilingsPerYear(inputs, sstEligible);
+  const billableFilings = Math.max(0, Math.round(totalFilings - freeFilings));
 
-  const filingsMin = totalFilings * PER_FILING_RANGE_SPREAD.min;
-  const filingsMax = totalFilings * PER_FILING_RANGE_SPREAD.max;
-  // Cap the displayed SST credit at the midpoint filings cost — for range
-  // pricing, the customer can't save more than the average filings line.
-  const filingsMid = (filingsMin + filingsMax) / 2;
-  const sstSavings = Math.min(theoreticalSstSavings, Math.round(filingsMid));
-  const filingsNetMin = Math.max(0, filingsMin - sstSavings);
-  const filingsNetMax = Math.max(0, filingsMax - sstSavings);
+  const filingsNetMin = billableFilings * PER_FILING_RANGE_SPREAD.min;
+  const filingsNetMax = billableFilings * PER_FILING_RANGE_SPREAD.max;
 
   // Registrations — YAML-driven ($403 published)
   const perRegistrationCost = data.registrations.base_cost.amount ?? 0;
-  const registrations = inputs.registrationBacklog * perRegistrationCost;
+  // SST member state registrations are state-sponsored at no charge, the same
+  // treatment the published-plan path above already applied.
+  const billableRegistrations = Math.max(0, inputs.registrationBacklog - sstEligible);
+  const registrations = billableRegistrations * perRegistrationCost;
 
   // Implementation, ERP connectors, and per-transaction overages are real
   // Avalara costs, but they are one-time or variable and not defensibly sourced
@@ -335,11 +331,12 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
   const assumptions = [
     `Buyer segment: ${segment} (based on $${inputs.annualRevenueUSD.toLocaleString()} annual revenue)`,
     `AvaTax + Returns core: $${baseRange.min.toLocaleString()}–$${baseRange.max.toLocaleString()}/yr (Avalara's published contract tiers; ceiling bounded by Vendr observed data when the buyer is past the published ladder)`,
-    `Returns (per-filing): ${totalFilings} × $${PER_FILING_RANGE_SPREAD.min}–$${PER_FILING_RANGE_SPREAD.max}`,
-    sstSavings > 0
-      ? `SST CSP savings: ${sstEligible} state${sstEligible === 1 ? '' : 's'} × ${SST_FILINGS_PER_STATE_PER_YEAR} filings × $${perFilingPublished}/filing = −$${sstSavings.toLocaleString()}/yr`
+    freeFilings > 0
+      ? `Returns: ${totalFilings} total, ${freeFilings} in ${sstEligible} SST member state${sstEligible === 1 ? '' : 's'} and state-funded, leaving ${billableFilings} billable at $${PER_FILING_RANGE_SPREAD.min}–$${PER_FILING_RANGE_SPREAD.max} each`
+      : `Returns (per-filing): ${billableFilings} × $${PER_FILING_RANGE_SPREAD.min}–$${PER_FILING_RANGE_SPREAD.max}`,
+    inputs.registrationBacklog > 0
+      ? `Registrations: ${billableRegistrations} × $${perRegistrationCost} (published)${billableRegistrations < inputs.registrationBacklog ? `, ${inputs.registrationBacklog - billableRegistrations} SST-state registration${inputs.registrationBacklog - billableRegistrations === 1 ? '' : 's'} state-sponsored at no charge` : ''}`
       : '',
-    `Registrations: ${inputs.registrationBacklog} × $${perRegistrationCost} (published)`,
     `Bounded to Vendr observed Avalara contracts: $${OBSERVED_CONTRACT_RANGE.min.toLocaleString()}–$${OBSERVED_CONTRACT_RANGE.max.toLocaleString()}/yr (avg ~$${OBSERVED_CONTRACT_RANGE.avg.toLocaleString()}, ${OBSERVED_CONTRACT_SAMPLE} purchases)`,
   ].filter(Boolean);
 
@@ -357,9 +354,9 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
   if (segment === 'enterprise') {
     caveats.push('Enterprise contracts are fully custom — actual price may exceed the high end of this range.');
   }
-  if (data.sst.is_csp && sstSavings > 0) {
+  if (data.sst.is_csp && freeFilings > 0) {
     caveats.push(
-      `${data.provider.name} is an SST CSP, but real-world realization of the SST free-filing discount varies. Some buyers report it is absorbed into base pricing rather than discounted at invoice — confirm with Avalara before relying on the SST savings shown here.`,
+      `${data.provider.name} is an SST CSP, but real-world realization of the SST free-filing benefit varies. Some buyers report it is absorbed into base pricing rather than reflected at invoice, so confirm with Avalara before relying on the ${freeFilings} state-funded returns assumed here.`,
     );
   }
   if (data.calculator.output_caveat) {
@@ -368,8 +365,9 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
 
   // Midpoint breakdown for the "show full breakdown" view. Implementation and
   // connector fees are excluded from the headline (see caveats), so they are 0
-  // here. (filingsMid is already computed above for the SST cap.)
+  // here.
   const subscriptionMid = (baseRange.min + baseRange.max) / 2;
+  const filingsMid = (filingsNetMin + filingsNetMax) / 2;
 
   return {
     provider: data.provider.name,
@@ -388,7 +386,7 @@ export function calculateAvalara(inputs: UserInputs, data?: ProviderData): Provi
       transactions: 0,
       addOns: 0,
       implementation: 0,
-      ...(sstSavings > 0 ? { sstSavings } : {}),
+      ...(freeFilings > 0 ? { filingsNotCharged: freeFilings } : {}),
     },
     assumptions,
     caveats,

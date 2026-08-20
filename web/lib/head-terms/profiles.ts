@@ -85,32 +85,20 @@ export const HEAD_TERM_PROFILES: readonly HeadTermProfile[] = [
     // revisiting the moment one is.
     { integrationType: 'netsuite' },
   ),
-  // A 45-state / 540-filing profile is deliberately NOT in this set yet.
-  //
-  // It should be: it is the shape where per-filing and per-state pricing
-  // separate hardest. It is held back because running it surfaced a defect in
-  // the shared TaxCloud calculator, not in this file. The SST free-filing
-  // credit is computed as (eligible states x 12 x the $45 pay-as-you-go rate)
-  // and then subtracted from a *tiered* annual filing price whose effective
-  // rate is $20-$33 per filing. Crediting at the higher basis means the credit
-  // grows faster than the cost it offsets, so at 22 eligible states the credit
-  // very nearly cancels the entire filing subscription and TaxCloud comes out
-  // cheaper at 45 states than at 20. That is not a real property of TaxCloud's
-  // pricing, it is a mixed-basis arithmetic error, and it runs in the
-  // publisher's favour.
-  //
-  // The defect affects every page on the site, not this profile, so fixing it
-  // belongs in its own change with its own verification. Add this profile back
-  // once the credit is computed on the same basis as the price it reduces.
-  // A quarterly-filer profile is held back for the same reason as the 45-state
-  // one, and it is a second, separate defect in the shared TaxCloud calculator.
-  // SST_FILINGS_PER_STATE_PER_YEAR is the constant 12 regardless of
-  // inputs.filingFrequency, so a quarterly filer with 10 eligible states is
-  // credited 120 free filings against a total of 80 returns. The credit then
-  // caps at the whole filing tier and TaxCloud's filing line goes to zero,
-  // which is why it won that profile. The correct count is 10 x 4.
-  //
-  // Add this profile back once the credit is scaled by filing frequency.
+  variant(
+    'wide-footprint',
+    'Wide footprint, 45 states',
+    '250K orders · 540 filings · 45 states · 22 SST · Shopify',
+    'Filing almost everywhere. Per-filing pricing and per-state pricing scale very differently at this width, so this is where the pricing models separate hardest.',
+    { statesFiling: 45, annualFilings: 540, sstEligibleStates: 22 },
+  ),
+  variant(
+    'quarterly',
+    'Quarterly filer',
+    '250K orders · 80 filings · 20 states · 10 SST · Shopify',
+    'Same state footprint, a quarter of the returns. Providers that bill per return benefit; providers that bill per state do not.',
+    { annualFilings: 80, filingFrequency: 'quarterly' },
+  ),
   variant(
     'international',
     'Mid-market selling internationally',

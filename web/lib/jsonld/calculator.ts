@@ -89,12 +89,12 @@ export function calculatorJsonLd(providers: ProviderData[]) {
             `For a typical mid-market profile (250,000 orders/year, 200 filings, 20 states with 10 SST states, Shopify), ` +
             `the three lowest-cost options are: ${midRanking}. ` +
             `Costs range from a few thousand to tens of thousands of dollars per year depending on the provider, ` +
-            `filing volume, and whether the seller qualifies for SST free-filing savings.`,
+            `filing volume, and whether the seller qualifies for state-funded filing in SST member states.`,
         },
       },
       {
         '@type': 'Question',
-        name: 'What is the SST savings shown in the calculator?',
+        name: 'What do the SST returns shown in the calculator mean?',
         acceptedAnswer: {
           '@type': 'Answer',
           text:
@@ -102,7 +102,7 @@ export function calculatorJsonLd(providers: ProviderData[]) {
             `in the SST Program, which means eligible sellers pay $0 for filings in SST member states. ` +
             `TaxCloud covers all 24 member states, Tennessee included, on every plan. ` +
             `Eligibility requires economic nexus only in those states — no physical presence (office, warehouse, employees). ` +
-            `The calculator deducts SST filing costs automatically when you specify SST-eligible states.`,
+            `Those returns are not discounted, they are not charged at all, and they do not consume the seller's filing subscription. The calculator therefore removes them from the filing count before pricing the rest, rather than pricing every return and crediting some back.`,
         },
       },
       {
@@ -143,7 +143,7 @@ export function calculatorJsonLd(providers: ProviderData[]) {
             `(4.8 stars, 96 reviews as of May 2026). It is also one of two SST Certified Service Providers ` +
             `in this comparison, which means free filing in all 24 SST states for qualifying Shopify sellers. ` +
             `TaxJar and Numeral also have native Shopify integrations. ` +
-            `The best choice depends on your state footprint, order volume, and whether you qualify for SST savings.`,
+            `The best choice depends on your state footprint, order volume, and whether you qualify for state-funded filing in SST member states.`,
         },
       },
     ],

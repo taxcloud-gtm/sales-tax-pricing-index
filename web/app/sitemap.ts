@@ -16,6 +16,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { url: `${base}/sst-csp-savings`, lastModified: now, changeFrequency: 'monthly', priority: 0.8 },
     { url: `${base}/methodology`, lastModified: now, changeFrequency: 'monthly', priority: 0.6 },
     { url: `${base}/changelog`, lastModified: now, changeFrequency: 'weekly', priority: 0.6 },
+    { url: `${base}/corrections`, lastModified: now, changeFrequency: 'monthly', priority: 0.7 },
   ];
 
   const providerRoutes: MetadataRoute.Sitemap = PROVIDER_SLUGS.map((slug) => ({

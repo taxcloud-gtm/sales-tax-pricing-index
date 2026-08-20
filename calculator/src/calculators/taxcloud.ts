@@ -15,6 +15,7 @@ import {
   applyAnnualDiscount,
   roundDollars,
   sstEligibleStateCount,
+  sstFreeFilingsPerYear,
   totalFilingsPerYear,
 } from '../helpers';
 
@@ -32,13 +33,6 @@ const STARTER_INTEGRATIONS: ReadonlyArray<UserInputs['integrationType']> = [
   'stripe',
   'csv_only',
 ];
-
-// Filings per SST member state per year. Assumes monthly cadence — the typical
-// commerce filing rhythm and the cadence published in TaxCloud's pricing.
-// Holding this constant means changing `statesFiling` doesn't shift TaxCloud's
-// price: SST savings depend only on how many SST states the buyer has economic
-// nexus in, not on how filings are distributed across non-SST states.
-const SST_FILINGS_PER_STATE_PER_YEAR = 12;
 
 function pickPlanSlug(inputs: UserInputs): 'starter' | 'premium' {
   if (inputs.statesFiling === 0 && inputs.registrationBacklog === 0) {
@@ -117,26 +111,33 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
 
   const totalFilings = totalFilingsPerYear(inputs);
   const sstEligible = sstCspBenefitAvailable ? sstEligibleStateCount(inputs) : 0;
-  const sstFreeFilingsPerYear = sstEligible * SST_FILINGS_PER_STATE_PER_YEAR;
 
-  // Filings cost: walk the tier ladder for the FULL annual filing count, then
-  // subtract a flat SST savings credit. Each SST state saves
-  // (12 filings/year × base per-filing rate) — for monthly cadence at $39/filing,
-  // that's $468 per SST state per year.
+  // Returns in SST member states are not charged and do not consume the filing
+  // subscription, so they come out of the count BEFORE the tier ladder is
+  // walked. There is no credit line: the returns are $0, not discounted.
+  //
+  // The previous model walked the ladder on the FULL filing count and then
+  // subtracted a credit valued at the pay-as-you-go per-filing rate, which is
+  // higher than the tiered effective rate it was reducing. See
+  // sstFreeFilingsPerYear() in helpers.ts for why that was wrong and by how
+  // much.
+  const freeFilings = sstFreeFilingsPerYear(inputs, sstEligible);
+  const billableFilings = Math.max(0, Math.round(totalFilings - freeFilings));
+
   const perFilingCost = data.filings.base_cost.amount ?? 0;
-  const filingTierResult = pickFilingTierPrice(data, totalFilings);
-  const filingCostBeforeSst = filingTierResult
-    ? filingTierResult.tier.annual_price
-    : totalFilings * perFilingCost;
-  // Effective SST savings cap: can't save more than the filings cost. If the
-  // theoretical credit exceeds filings, the buyer's invoice just zeroes out
-  // the filings line — they don't get a negative balance.
-  const theoreticalSstSavings = Math.round(sstFreeFilingsPerYear * perFilingCost);
-  const sstSavings = Math.min(theoreticalSstSavings, Math.round(filingCostBeforeSst));
-  const filings = filingCostBeforeSst - sstSavings;
-  const billableFilings = Math.round(totalFilings);
+  const filingTierResult = billableFilings > 0 ? pickFilingTierPrice(data, billableFilings) : null;
+  const filings =
+    billableFilings === 0
+      ? 0
+      : filingTierResult
+        ? filingTierResult.tier.annual_price
+        : billableFilings * perFilingCost;
 
-  const registrations = inputs.registrationBacklog * perRegistrationCost;
+  // Registrations in SST member states are also free under CSP enrollment, so
+  // only the non-SST backlog is billable. State permit fees charged by the
+  // state itself pass through and are not modeled.
+  const billableRegistrations = Math.max(0, inputs.registrationBacklog - sstEligible);
+  const registrations = billableRegistrations * perRegistrationCost;
 
   const annualCost = subscription + filings + registrations;
 
@@ -149,18 +150,21 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
       ? `Plan: ${plan.name}, up to ${annualOrdersTier.toLocaleString()} orders/year tier at $${orderTier.annual_price ? orderTier.annual_price.toLocaleString() : (monthlyPrice * 12).toLocaleString()}/yr`
       : `Plan: ${plan.name} at $${monthlyPrice}/mo`,
     `Annual billing: ${inputs.billingCadence === 'annual' ? `~${annualDiscountPct}% discount applied via tier annual rate` : 'No annual discount applied'}`,
-    filingTierResult
-      ? `Filings: up to ${filingTierResult.tier.filings} filings/year tier at $${filingTierResult.tier.annual_price.toLocaleString()}/yr`
-      : `${billableFilings} filings/year at $${perFilingCost}/filing`,
-    sstEligible > 0
-      ? sstSavings < theoreticalSstSavings
-        ? `SST CSP savings: ${sstEligible} state${sstEligible === 1 ? '' : 's'} × ${SST_FILINGS_PER_STATE_PER_YEAR} filings × $${perFilingCost}/filing = −$${theoreticalSstSavings.toLocaleString()}, capped at filings cost = −$${sstSavings.toLocaleString()}/yr`
-        : `SST CSP savings: ${sstEligible} state${sstEligible === 1 ? '' : 's'} × ${SST_FILINGS_PER_STATE_PER_YEAR} filings × $${perFilingCost}/filing = −$${sstSavings.toLocaleString()}/yr`
-      : sstCspBenefitAvailable
-        ? 'No SST states selected — pick the SST member states where you have economic nexus only to apply free-filing credit'
-        : '',
+    freeFilings > 0
+      ? `Filings: ${totalFilings} returns/year total, ${freeFilings} of them in ${sstEligible} SST member state${sstEligible === 1 ? '' : 's'} and not charged, leaving ${billableFilings} billable`
+      : `Filings: ${totalFilings} returns/year, all billable`,
+    billableFilings === 0
+      ? 'Filing subscription: none needed, every return falls in an SST member state where filing is not charged'
+      : filingTierResult
+        ? `Filing subscription: the ${filingTierResult.tier.filings}-filing tier at $${filingTierResult.tier.annual_price.toLocaleString()}/yr, sized to the ${billableFilings} billable returns rather than the ${totalFilings} total`
+        : `${billableFilings} billable filings at $${perFilingCost}/filing`,
+    sstEligible === 0 && sstCspBenefitAvailable
+      ? 'No SST states selected. Pick the SST member states where you have economic nexus only and no physical presence to remove those returns from the bill.'
+      : '',
     inputs.registrationBacklog > 0
-      ? `Registrations: ${inputs.registrationBacklog} × $${perRegistrationCost} = $${(inputs.registrationBacklog * perRegistrationCost).toLocaleString()} (SST member state registrations are free under CSP enrollment — subtract $${perRegistrationCost}/state for any of these in SST states)`
+      ? billableRegistrations === inputs.registrationBacklog
+        ? `Registrations: ${inputs.registrationBacklog} × $${perRegistrationCost} = $${(billableRegistrations * perRegistrationCost).toLocaleString()}. State permit fees charged by the state pass through and are not modeled.`
+        : `Registrations: ${inputs.registrationBacklog} needed, ${inputs.registrationBacklog - billableRegistrations} of them in SST member states and free under CSP enrollment, leaving ${billableRegistrations} × $${perRegistrationCost} = $${(billableRegistrations * perRegistrationCost).toLocaleString()}. State permit fees charged by the state pass through and are not modeled.`
       : '',
   ].filter(Boolean);
 
@@ -178,6 +182,28 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
   if (inputs.statesPhysicalNexus > 0 && sstCspBenefitAvailable) {
     caveats.push(`Physical nexus in ${inputs.statesPhysicalNexus} states disqualifies those from SST free-filing. Estimate accounts for this.`);
   }
+  if (freeFilings > 0) {
+    caveats.push(
+      `Which returns land in SST states is estimated, not known: without per-state filing cadence the model assumes returns are spread evenly across your filing states, so ${sstEligible} of ${inputs.statesFiling} states means ${freeFilings} of ${totalFilings} returns. A footprint that clusters returns in non-SST states costs more than this shows.`,
+    );
+  }
+  const upcharges = data.filings.state_upcharges ?? [];
+  if (freeFilings > 0 && upcharges.length > 0) {
+    caveats.push(
+      `"Not charged" is not universal across SST states. ${upcharges
+        .map((u) => `${u.state} adds $${u.additional_cost} per filing (${u.reason.toLowerCase()})`)
+        .join('; ')}. Those are not modeled here because the calculator has no per-state input.`,
+    );
+  }
+  // Published tier pricing is a list price for this provider too. It is
+  // transactable, unlike some competitors' list prices, but a sales-assisted
+  // deal can land below it. Saying so keeps the site from presenting one
+  // vendor's number as firm while flagging everyone else's as a starting
+  // point, which is the asymmetry a publisher is most likely to miss in its
+  // own favour.
+  caveats.push(
+    `This is ${data.provider.name}'s published tier pricing, which is self-serve and transactable at list. A sales-assisted deal can still land below it, so treat the figure as what you would pay without negotiating rather than the floor of what is achievable.`,
+  );
   if (data.calculator.output_caveat) {
     caveats.push(data.calculator.output_caveat);
   }
@@ -190,14 +216,16 @@ export function calculateTaxcloud(inputs: UserInputs, data?: ProviderData): Prov
     estimate: { type: 'exact', annualCostUSD: roundDollars(annualCost) },
     breakdown: {
       subscription: roundDollars(subscription),
-      // Filings line shows the tier-pricing cost BEFORE SST credit so the
-      // savings are visible as a separate line. The net is filings − sstSavings.
-      filings: roundDollars(filingCostBeforeSst),
+      // The filings line is the cost of the BILLABLE returns. There is no
+      // credit to net off, because returns in SST member states are never
+      // charged. `filingsNotCharged` carries the count so the UI can say what
+      // the CSP benefit removed without pretending it was a discount.
+      filings: roundDollars(filings),
       registrations,
       transactions: 0,
       addOns: 0,
       implementation: 0,
-      ...(sstSavings > 0 ? { sstSavings } : {}),
+      ...(freeFilings > 0 ? { filingsNotCharged: freeFilings } : {}),
     },
     assumptions,
     caveats,
