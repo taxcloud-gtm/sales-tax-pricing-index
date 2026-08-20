@@ -62,10 +62,10 @@ export function ProviderCard({ estimate, rank }: { estimate: ProviderEstimate; r
               <dl className="mt-2 grid grid-cols-2 gap-x-4 gap-y-1 font-mono text-xs text-ink-muted">
                 <dt>Subscription</dt><dd>${Math.round(estimate.breakdown.subscription).toLocaleString()}</dd>
                 <dt>Filings</dt><dd>${Math.round(estimate.breakdown.filings).toLocaleString()}</dd>
-                {typeof estimate.breakdown.sstSavings === 'number' && estimate.breakdown.sstSavings > 0 && (
+                {typeof estimate.breakdown.filingsNotCharged === 'number' && estimate.breakdown.filingsNotCharged > 0 && (
                   <>
-                    <dt className="text-accent">SST savings</dt>
-                    <dd className="text-accent">−${Math.round(estimate.breakdown.sstSavings).toLocaleString()}</dd>
+                    <dt className="text-accent">SST returns</dt>
+                    <dd className="text-accent">{estimate.breakdown.filingsNotCharged} not charged</dd>
                   </>
                 )}
                 <dt>Registrations</dt><dd>${Math.round(estimate.breakdown.registrations).toLocaleString()}</dd>

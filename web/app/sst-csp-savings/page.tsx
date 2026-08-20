@@ -22,7 +22,7 @@ import {
 export const metadata: Metadata = {
   title: 'SST Certified Service Providers, and what CSP status is worth',
   description:
-    'Five providers are Certified Service Providers in the Streamlined Sales Tax Program. What that means, who qualifies for state-funded filing, which of the eight tracked platforms are certified, and what the credit is actually worth in dollars.',
+    'Five providers are Certified Service Providers in the Streamlined Sales Tax Program. What that means, who qualifies for state-funded filing, which of the eight tracked platforms are certified, and what qualifying is actually worth in dollars.',
   alternates: { canonical: '/sst-csp-savings' },
 };
 
@@ -53,7 +53,7 @@ export default function SstCspSavingsPage() {
           a: `For the mid-market profile used across this site (${savings.scenarioDescription}), running ${savings.provider} with ${savings.sstStates} SST states declared costs ${money(savings.withCredit)} per year against ${money(savings.withoutCredit)} with none declared, a difference of ${money(savings.savings)} per year. That is this site's calculator, not a vendor quote, and the figure moves with how many SST states you actually file in.`,
         }]
       : []),
-    { q: 'Does being a CSP make a provider cheaper overall?', a: `Not necessarily. CSP status removes the filing cost in qualifying member states, but subscription pricing, per-registration fees, and non-SST state filings are unaffected. A non-CSP provider with lower subscription pricing can still come out ahead depending on your state footprint. The calculator on this site applies the CSP credit where eligible so you can compare the whole bill rather than one line of it.` },
+    { q: 'Does being a CSP make a provider cheaper overall?', a: `Not necessarily. CSP status removes the filing cost in qualifying member states, but subscription pricing, per-registration fees, and non-SST state filings are unaffected. A non-CSP provider with lower subscription pricing can still come out ahead depending on your state footprint. On this site's calculator, returns in qualifying member states are left off the bill entirely rather than priced and credited back, so you can compare the whole bill rather than one line of it.` },
   ];
 
   const jsonLd = [

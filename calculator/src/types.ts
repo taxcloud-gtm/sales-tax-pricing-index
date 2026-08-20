@@ -123,12 +123,18 @@ export interface CostBreakdown {
   addOns: number;
   implementation: number;
   /**
-   * SST CSP free-filing credit (positive value; UI displays it as negative).
-   * When present, `filings` reflects the tier-pricing cost BEFORE this credit
-   * is applied — so the breakdown sums correctly: filings − sstSavings = net.
-   * Only populated for SST CSP providers (TaxCloud, Avalara).
+   * Count of annual returns that fall in SST member states and are therefore
+   * not charged at all. A COUNT, not a dollar figure.
+   *
+   * This replaces an earlier `sstSavings` dollar field. Returns in SST member
+   * states are $0 rather than discounted, and they do not consume the seller's
+   * filing subscription, so there is no credit to net off a gross filing cost.
+   * `filings` above is already the cost of the billable returns only. Rendering
+   * the benefit as a discount both misdescribed it and, because the credit was
+   * valued at a higher per-filing rate than the tiered price it reduced,
+   * understated the provider's own cost.
    */
-  sstSavings?: number;
+  filingsNotCharged?: number;
 }
 
 // -----------------------------------------------------------------------------

@@ -92,8 +92,8 @@ export default function HomePage() {
                 </p>
                 <p className="text-ink-muted text-sm max-w-prose mb-6">
                   Both profiles assume Shopify, monthly filing cadence, and annual
-                  billing. SST savings applied where eligible. Every figure below traces
-                  to a public source.{' '}
+                  billing. Returns in SST member states are excluded from the bill where
+                  the seller qualifies. Every figure below traces to a public source.{' '}
                   <Link href="/calculator" className="no-underline hover:text-accent">
                     Run your own numbers
                   </Link>

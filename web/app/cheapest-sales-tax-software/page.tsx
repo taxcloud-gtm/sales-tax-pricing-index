@@ -162,10 +162,14 @@ export default function CheapestPage() {
           B. "Cheapest for whom" — the all-profile table further down, which is
              the by-profile version. TaxCloud does not win all of them.
 
-        Two profiles that belong in B are held back, both because they surface
-        arithmetic defects in the shared TaxCloud SST credit rather than real
-        pricing. See the comments in lib/head-terms/profiles.ts. Both run in the
-        publisher's favour, so they should not ship until the credit is fixed.
+        The wide-footprint and quarterly-filer profiles were held back on the
+        first pass because they surfaced two arithmetic defects in the shared
+        TaxCloud SST credit, both running in the publisher's favour. The credit
+        was replaced with the correct model (returns in SST member states are
+        not charged and do not consume the filing subscription, so they leave
+        the count before the tier ladder is walked) and both profiles are back
+        in. TaxCloud now wins 4 of the 7 rather than 5, and wins them on
+        arithmetic that holds up.
 
         If you want framing A alone, delete the "Where the answer changes"
         section and the capability-gate section. If you want framing B alone,
