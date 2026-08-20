@@ -4,7 +4,6 @@ import { getAllProviders, getProvidersMap } from '@/lib/data/providers';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { Tldr } from '@/components/site/tldr';
-import { OwnershipNote } from '@/components/site/ownership-note';
 import { providerPath } from '@/lib/slugs';
 import { money, renderEstimate } from '@/lib/format';
 import { absoluteUrl } from '@/lib/utils';
@@ -180,42 +179,6 @@ export default function CheapestPage() {
         the page is targeting; A on its own is the version a competitor
         screenshots.
       */}
-
-      <OwnershipNote heading="Read this before the ranking">
-        <p>
-          This site is operated by TaxCloud, one of the {providers.length} platforms ranked below,
-          and TaxCloud comes out cheapest on {publisherWins} of the {all.length} profiles modeled
-          here. That is a conflict worth stating in the first screen rather than the footer.
-        </p>
-        <p>
-          Three things are done about it, all structural. The ranking is computed by{' '}
-          <Link href="/calculator" className="no-underline hover:text-accent">
-            the same calculator
-          </Link>{' '}
-          that runs publicly on this site, from the same provider data, so nothing here can place a
-          provider anywhere the public tool would not. {all.length} buyer profiles are published
-          rather than one, including{' '}
-          {publisherLosses.length > 0
-            ? `the ${publisherLosses.length} where TaxCloud is not the cheapest option${excludedPublisherProfiles > 0 ? `, and the ${excludedPublisherProfiles === 1 ? 'one' : excludedPublisherProfiles} where it is removed from the ranking entirely because it cannot meet the requirement` : ''}`
-            : 'the profiles that stress the assumptions hardest'}
-          . And capability gates are reported before price, because a platform that cannot do the job
-          is not a cheap option.
-        </p>
-        <p>
-          The honest limit of the whole exercise: this is a comparison of{' '}
-          <em>published</em> pricing, and the vendors publish very different amounts of it. One is
-          quote-only, so its position is an observed range from buyer reports rather than a price.
-          One publishes a per-state list rate but sells only through a sales process, so its
-          position is a floor.
-        </p>
-        <p>
-          And every vendor here, TaxCloud included, discounts in a sales-assisted deal. So no row
-          below is the floor of what that vendor would accept. Read the whole table as what each
-          platform costs a buyer who does not negotiate, which is the only version of the question
-          public pricing can answer. Nothing on this page claims to know what any vendor&apos;s
-          negotiated pricing is, ours or anyone else&apos;s.
-        </p>
-      </OwnershipNote>
 
       <section className="my-12">
         <h2 className="text-subhed mb-4">Ranked on the two profiles this site publishes</h2>

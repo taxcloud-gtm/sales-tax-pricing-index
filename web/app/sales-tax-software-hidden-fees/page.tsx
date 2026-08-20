@@ -4,7 +4,6 @@ import { getAllProviders, getProvidersMap } from '@/lib/data/providers';
 import { lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { Tldr } from '@/components/site/tldr';
-import { OwnershipNote } from '@/components/site/ownership-note';
 import { providerPath } from '@/lib/slugs';
 import { absoluteUrl } from '@/lib/utils';
 import { HEAD_TERM_PROFILES } from '@/lib/head-terms/profiles';
@@ -228,29 +227,6 @@ export default function HiddenFeesPage() {
           so rather than guessing.
         </p>
       </section>
-
-      <OwnershipNote heading="The publisher charges some of these">
-        <p>
-          This site is operated by TaxCloud. TaxCloud charges something unpublished in{' '}
-          {taxcloudCount} of the {cats.length} categories checked below, charges{' '}
-          {taxcloudRegistrationRank
-            ? `the ${taxcloudRegistrationRank} per-state registration fee of the ${registrationFeeCount} vendors that publish one`
-            : 'a per-state registration fee'}
-          , applies per-filing upcharges in {taxcloudUpchargeStates.length} states
-          {taxcloudUpchargeStates.length > 0 ? ` (${taxcloudUpchargeStates.join(', ')})` : ''}, and is
-          the only vendor here with a published credit card surcharge. All of that is in the tables,
-          computed by the same functions as everyone else&apos;s rows.
-        </p>
-        <p>
-          Every cell in the tables below is produced by the same function for every vendor, from the
-          same recorded fields, with no per-vendor exceptions. If you want to test that, check the
-          publisher&apos;s rows against its own{' '}
-          <Link href="/taxcloud-pricing" className="no-underline hover:text-accent">
-            pricing page
-          </Link>
-          .
-        </p>
-      </OwnershipNote>
 
       {/* Disclosure matrix — the most liftable table on the page. */}
       <section className="my-12">

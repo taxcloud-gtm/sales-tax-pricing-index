@@ -18,7 +18,6 @@ export function Header() {
           <Link href="/sst-csp-savings" className="text-ink-muted hover:text-ink no-underline">SST &amp; CSP</Link>
           <Link href="/methodology" className="text-ink-muted hover:text-ink no-underline">Methodology</Link>
           <Link href="/changelog" className="text-ink-muted hover:text-ink no-underline">Changelog</Link>
-          <Link href="/corrections" className="text-ink-muted hover:text-ink no-underline">Corrections</Link>
         </nav>
       </div>
     </header>

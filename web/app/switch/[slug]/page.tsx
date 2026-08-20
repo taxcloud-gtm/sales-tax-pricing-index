@@ -5,7 +5,6 @@ import { PROVIDER_SLUGS, getProvider, getAllProviders, getProvidersMap } from '@
 import { lastUpdated, lastUpdatedAcross } from '@/lib/last-updated';
 import { UpdatedBadge } from '@/components/site/updated-badge';
 import { Tldr } from '@/components/site/tldr';
-import { OwnershipNote } from '@/components/site/ownership-note';
 import { providerPath, pairPath, switchPath } from '@/lib/slugs';
 import { money, renderEstimate } from '@/lib/format';
 import { absoluteUrl } from '@/lib/utils';
@@ -139,40 +138,6 @@ export default async function SwitchPage({ params }: { params: Promise<{ slug: s
       </header>
 
       <Tldr>{answer}</Tldr>
-
-      <OwnershipNote
-        heading={
-          isPublisherPage
-            ? 'This page is about leaving the site publisher'
-            : 'One of the alternatives below publishes this site'
-        }
-      >
-        {isPublisherPage ? (
-          <p>
-            This site is operated by TaxCloud, and this page models the cost of moving off TaxCloud.
-            It exists because the switching-cost page is generated for all {allProviders.length}{' '}
-            tracked platforms from one template, and excluding the publisher&apos;s own would make
-            the set an argument rather than a reference. The numbers are produced by the same
-            calculator as every other page here.
-          </p>
-        ) : (
-          <p>
-            This site is operated by TaxCloud, which appears below as one of the{' '}
-            {analysis.destinations.length} alternatives
-            {publisherDest
-              ? `, ranked ${analysis.destinations.indexOf(publisherDest) + 1} of ${analysis.destinations.length} by modeled annual cost on this profile`
-              : ''}
-            . A &ldquo;cost to switch away from a competitor&rdquo; page published by a competitor is
-            the most obviously self-interested page shape there is, so this one is built as a
-            template that runs for every vendor including TaxCloud itself, and it is linked from
-            every provider page in the set.
-          </p>
-        )}
-        <p>
-          It also refuses to quantify the parts that would flatter a switch if invented. The
-          list below of what is not priced is the same on all {allProviders.length} pages.
-        </p>
-      </OwnershipNote>
 
       <section className="my-12">
         <h2 className="text-subhed mb-4">What a switch actually costs</h2>
