@@ -47,6 +47,16 @@ export default function ChangelogPage() {
           When a tracked provider changes its pricing, we log it here with the date and the source URL
           we pulled it from. No silent edits.
         </p>
+        <p className="text-ink-muted text-sm mt-4">
+          This page is about what <em>vendors</em> changed. When{' '}
+          <strong className="text-ink">this site</strong> got something wrong, that is a different
+          thing and it goes in the{' '}
+          <Link href="/corrections" className="no-underline hover:text-accent">
+            corrections log
+          </Link>
+          , which records what was published, what it says now, and which direction the error ran
+          in. Keeping them apart matters: a mistake of ours is not a vendor price change.
+        </p>
       </header>
 
       <section className="mt-12">

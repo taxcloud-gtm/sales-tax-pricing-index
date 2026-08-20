@@ -27,6 +27,10 @@ export function OwnershipNote({
         ·{' '}
         <Link href="/methodology" className="no-underline hover:text-accent">
           How every price is sourced
+        </Link>{' '}
+        ·{' '}
+        <Link href="/corrections" className="no-underline hover:text-accent">
+          Every correction we have published
         </Link>
       </p>
     </section>

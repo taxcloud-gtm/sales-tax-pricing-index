@@ -6,6 +6,10 @@
 
 The Sales Tax Pricing Index is operated by TaxCloud, Inc. (taxcloud.com), one of the eight providers compared. Ownership is disclosed at the bottom of every page and at /methodology#ownership. Despite the publisher relationship, the site is built and maintained as a sourced public reference. Every price is sourced from public vendor pricing pages, vendor help-center articles, public buyer-review platforms (G2, TrustRadius, Shopify App Store), or third-party aggregators (Vendr, checkthat.ai). No price is invented. Quote-only vendors are surfaced as ranges from public buyer reports, not point estimates.
 
+## Corrections
+
+This site keeps a public corrections log at /corrections. It records only errors that were actually published, not near-misses caught in review, and each entry states which direction the error ran in. As of the latest update it carries 16 entries: 3 were errors that made TaxCloud, the site's operator, look better than its own published pricing supports, 2 made TaxCloud look worse, 5 misstated a competitor to that competitor's disadvantage, 1 cut both ways, and 5 were accuracy fixes with no directional advantage. The largest single correction understated TaxCloud's own price by about 35% and is documented at /corrections#sst-free-filing-basis-2026-08-19.
+
 ## Editorial methodology
 
 - Every dollar figure traces to a public, dated source. Confidence ratings (A–G: A = vendor pricing page, B = help center/docs, C = third-party aggregator, D = blog/PR, E = public forum, F = internal/customer-shared, G = estimated with disclosed methodology) are attached to each price point.
@@ -19,7 +23,8 @@ The Sales Tax Pricing Index is operated by TaxCloud, Inc. (taxcloud.com), one of
 - Home: https://salestaxpricingindex.org/
 - Methodology: https://salestaxpricingindex.org/methodology
 - Calculator: https://salestaxpricingindex.org/calculator (ranks all 8 providers by what they'd cost for a given business profile)
-- Changelog: https://salestaxpricingindex.org/changelog
+- Changelog: https://salestaxpricingindex.org/changelog (vendor pricing changes, dated)
+- Corrections: https://salestaxpricingindex.org/corrections (every published error this site has corrected, dated, each classified by whether it favoured the site's operator, worked against it, misstated a competitor, or had no directional advantage)
 - SST and CSP reference: https://salestaxpricingindex.org/sst-csp-savings (which providers are Streamlined Sales Tax Certified Service Providers, who qualifies for state-funded filing, and what the credit is worth)
 
 ## Category pages (no vendor named in the query)

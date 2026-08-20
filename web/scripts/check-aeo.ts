@@ -16,7 +16,7 @@ const STATIC_DIR = path.join(WEB_ROOT, '.next', 'server', 'app');
 interface Check {
   path: string;
   htmlFile: string;
-  kind: 'provider' | 'pair' | 'head-term' | 'switch';
+  kind: 'provider' | 'pair' | 'head-term' | 'switch' | 'trust';
 }
 
 /**
@@ -78,6 +78,10 @@ function buildChecks(): Check[] {
     });
   }
 
+  // Trust pages carry no Product and no FAQ. What must not silently regress is
+  // that the corrections log still contains its corrections.
+  checks.push({ path: '/corrections', htmlFile: htmlPathForRoute('corrections'), kind: 'trust' });
+
   return checks;
 }
 
@@ -121,18 +125,31 @@ function runChecks(): Failure[] {
     const faqCount = Array.isArray(faqBlob?.mainEntity) ? faqBlob.mainEntity.length : 0;
     const hasUpdated = /Last updated/i.test(html);
     const isCategoryPage = c.kind === 'head-term' || c.kind === 'switch';
+    const isTrustPage = c.kind === 'trust';
 
     // Product schema is required on pages about a product, and wrong on pages
     // about the category.
-    if (!isCategoryPage && !hasProduct) failures.push({ path: c.path, reason: 'Missing Product JSON-LD' });
-    if (!hasFaq) failures.push({ path: c.path, reason: 'Missing FAQPage JSON-LD' });
+    if (!isCategoryPage && !isTrustPage && !hasProduct) failures.push({ path: c.path, reason: 'Missing Product JSON-LD' });
+    if (!isTrustPage && !hasFaq) failures.push({ path: c.path, reason: 'Missing FAQPage JSON-LD' });
     if (!hasTable) failures.push({ path: c.path, reason: 'Missing Table JSON-LD' });
-    if (faqCount < 5) failures.push({ path: c.path, reason: `FAQPage has only ${faqCount} questions, expected ≥5` });
+    if (!isTrustPage && faqCount < 5) failures.push({ path: c.path, reason: `FAQPage has only ${faqCount} questions, expected ≥5` });
     if (!hasUpdated) failures.push({ path: c.path, reason: 'Missing "Last updated" string' });
 
     if (c.kind === 'pair') {
       const productCount = types.filter((t) => t === 'Product').length;
       if (productCount < 2) failures.push({ path: c.path, reason: `Pair page has ${productCount} Product schema(s), expected 2` });
+    }
+
+    if (isTrustPage) {
+      if (!hasArticle) failures.push({ path: c.path, reason: 'Missing Article JSON-LD' });
+      // The whole point of the page. If the log renders empty, fail loudly.
+      const logged = (html.match(/What the site said/g) ?? []).length;
+      if (logged < 5) {
+        failures.push({ path: c.path, reason: `Corrections log rendered only ${logged} entries, expected ≥5` });
+      }
+      if (!/operator/i.test(html)) {
+        failures.push({ path: c.path, reason: 'Corrections page does not identify the site operator' });
+      }
     }
 
     if (isCategoryPage) {
@@ -163,7 +180,7 @@ function main(): void {
   const failures = runChecks();
   if (failures.length === 0) {
     console.log(
-    `✓ AEO check passed — ${buildChecks().length} pages (provider, pair, head-term, switching) have required JSON-LD.`,
+    `✓ AEO check passed — ${buildChecks().length} pages (provider, pair, head-term, switching, trust) have required JSON-LD.`,
   );
     return;
   }
